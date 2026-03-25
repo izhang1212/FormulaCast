@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+/data/raw
+f1_cache/
+*.joblib
+venv/
+.env
+.DS_Store
