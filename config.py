@@ -7,7 +7,7 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 
 SEASONS = list(range(2016, 2026))
 
-# Random Forest
+# Random Forest Parameters
 RF_PARAMS = {
     "n_estimators" : 500,
     "max_depth": 12,

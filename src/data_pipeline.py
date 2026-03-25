@@ -4,6 +4,7 @@ import fastf1
 import pandas as pd
 from tqdm import tqdm
 from config import SEASONS, CACHE_DIR
+import os
 
 fastf1.Cache.enable_cache(CACHE_DIR)
 
@@ -64,13 +65,24 @@ def extract_race_data(session: fastf1.core.Session) -> pd.DataFrame:
 
     return race_df
 
- # Pull every race from every season in SEASONS.
-        #Returns a master DataFrame: one row per driver per race.
+
+#Pull every race from every season in SEASONS.
+    # Saves per-season CSVs so progress isn't lost on rate limit errors.
 def build_master_dataset() -> pd.DataFrame:
     
     all_races = []
+    save_dir = os.path.join("data", "processed", "seasons")
+    os.makedirs(save_dir, exist_ok=True)
 
     for year in SEASONS:
+        season_path = os.path.join(save_dir, f"season_{year}.csv")
+
+        # Skip if we already have this season
+        if os.path.exists(season_path):
+            print(f"Loading cached {year}")
+            all_races.append(pd.read_csv(season_path))
+            continue
+
         schedule = fastf1.get_event_schedule(year, include_testing=False)
         race_rounds = schedule[schedule["EventFormat"] != "testing"]["RoundNumber"].tolist()
 
@@ -78,14 +90,21 @@ def build_master_dataset() -> pd.DataFrame:
         print(f"Season {year}: {len(race_rounds)} races")
         print(f"{'='*50}")
 
+        season_races = []
         for rnd in tqdm(race_rounds, desc=f"{year}"):
             try:
                 session = load_race_session(year, rnd)
                 race_data = extract_race_data(session)
-                all_races.append(race_data)
+                season_races.append(race_data)
             except Exception as e:
                 print(f"  Skipping {year} Round {rnd}: {e}")
                 continue
+
+        if season_races:
+            season_df = pd.concat(season_races, ignore_index=True)
+            season_df.to_csv(season_path, index=False)
+            all_races.append(season_df)
+            print(f"Saved {year} ({len(season_df)} rows)")
 
     master_df = pd.concat(all_races, ignore_index=True)
     print(f"\nMaster dataset: {len(master_df)} rows, {master_df['Year'].nunique()} seasons, "
