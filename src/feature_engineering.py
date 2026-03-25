@@ -102,21 +102,21 @@ def add_weighted_features(df: pd.DataFrame) -> pd.DataFrame:
 
     grouped = df.groupby("Driver")
 
-    # Exponentially weighted finish position (halflife=3 means 3 races ago counts half as much)
+    # Driver: halflife=6 (a race 6 rounds ago still counts 50%)
     df["EWM_Finish"] = grouped["FinishPosition"].transform(
-        lambda x: x.shift(1).ewm(halflife=3, min_periods=1).mean()
+        lambda x: x.shift(1).ewm(halflife=6, min_periods=1).mean()
     )
 
     # Exponentially weighted points
     df["EWM_Points"] = grouped["Points"].transform(
-        lambda x: x.shift(1).ewm(halflife=3, min_periods=1).mean()
+        lambda x: x.shift(1).ewm(halflife=6, min_periods=1).mean()
     )
 
-    # Same for constructor level
+    # Constructor halflife = 8
     df["Team_EWM_Finish"] = (
         df.sort_values(["Team", "Year", "RoundNumber"])
         .groupby("Team")["FinishPosition"]
-        .transform(lambda x: x.shift(1).ewm(halflife=5, min_periods=2).mean())
+        .transform(lambda x: x.shift(1).ewm(halflife=8, min_periods=2).mean())
     )
 
     return df

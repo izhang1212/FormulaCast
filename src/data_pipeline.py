@@ -64,10 +64,9 @@ def extract_race_data(session: fastf1.core.Session) -> pd.DataFrame:
 
     return race_df
 
-
-def build_master_dataset() -> pd.DataFrame:
-    # Pull every race from every season in SEASONS.
+ # Pull every race from every season in SEASONS.
         #Returns a master DataFrame: one row per driver per race.
+def build_master_dataset() -> pd.DataFrame:
     
     all_races = []
 
