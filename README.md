@@ -36,7 +36,7 @@ FormulaCast uses real historical data from the offical F1 timing API via Fastf1
 
 ## References:
 
-- ![Monte-Carlo] - https://en.wikipedia.org/wiki/Monte_Carlo_method
+- ![Monte-Carlo](https://en.wikipedia.org/wiki/Monte_Carlo_method)
 
-- ![Random-Forest] - https://en.wikipedia.org/wiki/Random_forest
+- ![Random-Forest](https://en.wikipedia.org/wiki/Random_forest)
 
