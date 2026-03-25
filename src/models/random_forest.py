@@ -5,7 +5,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from config import RF_PARAMS
-from src.feature_engineering import FEATURE_COLUMNS, TARGET_COLUMN
+from src.data.feature_engineering import FEATURE_COLUMNS, TARGET_COLUMN
 
 # Takes full feature matrix and a year to hold out for testing
     # Returns: Trarined model, test set with predictions, metrics dict
