@@ -1,12 +1,10 @@
 # Monte Carlo simulation engine.
 
-
 import numpy as np
 import pandas as pd
 from config import NUM_SIMULATIONS, MC_RANDOM_SEED, POINTS_SYSTEM
-from src.race_events import SafetyCarModel, DNFModel, PitStopModel, OvertakeModel
+from src.models.race_events import SafetyCarModel, DNFModel, PitStopModel, OvertakeModel
 
- 
 # Simulate one race from predicted starting order.
     # Returns DataFrame with simulated finishing positions.
     

@@ -1,8 +1,16 @@
+"""
+main.py — Entry point for the F1 Race Simulator.
+"""
+
 import os
+import warnings
 import pandas as pd
-from src.data_pipeline import build_master_dataset
-from src.feature_engineering import build_feature_matrix
-from src.random_forest import train_model, get_feature_importance
+from src.data.data_pipeline import build_master_dataset
+from src.data.feature_engineering import build_feature_matrix
+from src.models.random_forest import train_model, get_feature_importance
+from src.models.monte_carlo import run_simulation
+
+warnings.filterwarnings("ignore")
 
 DATA_OUTPUT_PATH = os.path.join("data", "processed", "master_race_data.csv")
 FEATURES_OUTPUT_PATH = os.path.join("data", "processed", "feature_matrix.csv")
@@ -42,7 +50,53 @@ def run_model(df: pd.DataFrame):
     return model, test_df, metrics
 
 
+def run_sim(model, test_df: pd.DataFrame):
+    """Phase 4: Run Monte Carlo simulation on a specific race."""
+    available_races = test_df.groupby(["Year", "RoundNumber", "CircuitName"]).size().reset_index()
+
+    print("\nAvailable races to simulate:")
+    for _, row in available_races.iterrows():
+        print(f"  Round {int(row['RoundNumber'])}: {row['CircuitName']}")
+
+    # Let user pick a race
+    try:
+        choice = int(input("\nEnter round number to simulate (or 0 for first available): "))
+    except ValueError:
+        choice = 0
+
+    if choice == 0:
+        choice = int(available_races.iloc[0]["RoundNumber"])
+
+    race_data = test_df[test_df["RoundNumber"] == choice].copy()
+
+    if race_data.empty:
+        print(f"Round {choice} not found, using first available.")
+        choice = int(available_races.iloc[0]["RoundNumber"])
+        race_data = test_df[test_df["RoundNumber"] == choice].copy()
+
+    circuit = race_data["CircuitName"].iloc[0]
+    total_laps = int(race_data["TotalRaceLaps"].iloc[0]) if "TotalRaceLaps" in race_data.columns else 57
+
+    print(f"\nSimulating: {circuit} ({total_laps} laps)")
+    print(f"Running 10,000 simulations...\n")
+
+    results = run_simulation(race_data, total_laps)
+    return results
+
+
 if __name__ == "__main__":
+    print("=" * 50)
+    print("  F1 Race Simulator — FormulaCast")
+    print("=" * 50)
+
+    print("\n[Phase 1] Loading data...")
     df = run_pipeline()
+
+    print("\n[Phase 2] Engineering features...")
     df = run_features(df)
+
+    print("\n[Phase 3] Training model...")
     model, test_df, metrics = run_model(df)
+
+    print("\n[Phase 4] Monte Carlo simulation...")
+    results = run_sim(model, test_df)
