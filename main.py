@@ -1,6 +1,4 @@
-"""
-main.py — Entry point for the F1 Race Simulator.
-"""
+# Main
 
 import os
 import warnings
