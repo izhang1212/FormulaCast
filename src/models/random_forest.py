@@ -72,10 +72,6 @@ def evaluate_model(y_true, y_pred, test_df: pd.DataFrame) -> dict:
         "Improvement_Over_Baseline": round(baseline_mae - mae, 2),
     }
 
-    print("\n--- Model Performance ---")
-    for k, v in metrics.items():
-        print(f"  {k}: {v}")
-
     return metrics
 
 # Extract and rank feature importances
