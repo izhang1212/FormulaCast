@@ -10,27 +10,34 @@ from src.data.feature_engineering import FEATURE_COLUMNS, TARGET_COLUMN
 # Takes full feature matrix and a year to hold out for testing
     # Returns: Trarined model, test set with predictions, metrics dict
 def train_model(df: pd.DataFrame, test_season: int) -> tuple:
-
     train = df[df["Year"] < test_season].copy()
     test = df[df["Year"] == test_season].copy()
+
+    train = train.dropna(subset=["FinishPosition"])
+    test = test.dropna(subset=["FinishPosition"])
 
     print(f"Train: {len(train)} rows ({train['Year'].min()}-{train['Year'].max()})")
     print(f"Test:  {len(test)} rows ({test_season})")
 
-    # X: features (i.e. the inputs) Y: the target (i.e. what we are predicting)
+    # Target: residual from grid position
+    train["Residual"] = train["FinishPosition"] - train["GridPosition"]
+    test["Residual"] = test["FinishPosition"] - test["GridPosition"]
+
     X_train = train[FEATURE_COLUMNS].fillna(0)
-    y_train = train[TARGET_COLUMN]
+    y_train = train["Residual"]
     X_test = test[FEATURE_COLUMNS].fillna(0)
-    y_test = test[TARGET_COLUMN]
 
     model = RandomForestRegressor(**RF_PARAMS)
     model.fit(X_train, y_train)
 
-    predictions = model.predict(X_test)
-    test["PredictedPosition"] = predictions
+    predicted_residual = model.predict(X_test)
+    test["PredictedPosition"] = test["GridPosition"] + predicted_residual
+    test["PredictedPosition"] = test["PredictedPosition"].clip(1, 20)
 
-    # Metrics
-    metrics = evaluate_model(y_test, predictions, test)
+    y_true = test["FinishPosition"]
+    y_pred = test["PredictedPosition"]
+
+    metrics = evaluate_model(y_true, y_pred, test)
 
     return model, test, metrics
 
@@ -71,9 +78,8 @@ def evaluate_model(y_true, y_pred, test_df: pd.DataFrame) -> dict:
 
     return metrics
 
-
+# Extract and rank feature importances
 def get_feature_importance(model, top_n: int = 15) -> pd.DataFrame:
-    """Extract and rank feature importances."""
     importance_df = pd.DataFrame({
         "Feature": FEATURE_COLUMNS,
         "Importance": model.feature_importances_,
@@ -87,11 +93,11 @@ def get_feature_importance(model, top_n: int = 15) -> pd.DataFrame:
     return importance_df
 
 
+ 
+#Given feature data for an upcoming/specific race, predict finishing order
+    #Returns DataFrame sorted by predicted position. 
 def predict_race(model, race_features: pd.DataFrame) -> pd.DataFrame:
-    """
-    Given feature data for an upcoming/specific race, predict finishing order.
-    Returns DataFrame sorted by predicted position.
-    """
+   
     X = race_features[FEATURE_COLUMNS].fillna(0)
     race_features = race_features.copy()
     race_features["PredictedPosition"] = model.predict(X)
