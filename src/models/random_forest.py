@@ -46,10 +46,12 @@ def train_model(df: pd.DataFrame, test_season: int) -> tuple:
 
     return model, test, metrics
 
-# Calculate performance metrics
+# Calculate performance metrics (MAE)
 def evaluate_model(y_true, y_pred, test_df: pd.DataFrame) -> dict:
-
+    # Mean Absolute Error: how far off each predicted position was
+        # e.g. predicted [3,5,8] vs. actual [2,5,10] has errors [1,0,2] and an MAE of 1
     mae = mean_absolute_error(y_true, y_pred)
+    # Root squared mean error
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
 
     # Within ±3 positions

@@ -1,6 +1,4 @@
-"""
-monte_carlo.py — Core Monte Carlo simulation engine (optimized).
-"""
+# Monte Carlo Simulation engine
 
 import numpy as np
 import pandas as pd
@@ -8,8 +6,13 @@ from config import NUM_SIMULATIONS, MC_RANDOM_SEED, POINTS_SYSTEM
 from src.models.race_events import SafetyCarModel, DNFModel, PitStopModel
 
 
-def simulate_single_race(drivers: np.ndarray, predicted_positions: np.ndarray,
-                         total_laps: int, rng: np.random.Generator) -> np.ndarray:
+def simulate_single_race(
+    drivers: np.ndarray, 
+    predicted_positions: np.ndarray,
+    total_laps: int, 
+    rng: np.random.Generator
+) -> np.ndarray:
+    
     n = len(drivers)
     sc_model = SafetyCarModel()
 
@@ -69,8 +72,12 @@ def simulate_single_race(drivers: np.ndarray, predicted_positions: np.ndarray,
     return positions
 
 
-def run_simulation(predicted_order: pd.DataFrame, total_laps: int,
-                   n_sims: int = NUM_SIMULATIONS) -> dict:
+def run_simulation(
+    predicted_order: pd.DataFrame, 
+    total_laps: int,
+    n_sims: int = NUM_SIMULATIONS
+) -> dict:
+    
     rng = np.random.default_rng(MC_RANDOM_SEED)
 
     drivers = predicted_order["Driver"].values
