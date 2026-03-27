@@ -13,23 +13,28 @@ def train_model(df: pd.DataFrame, test_season: int) -> tuple:
     train = df[df["Year"] < test_season].copy()
     test = df[df["Year"] == test_season].copy()
 
+    # Remove rows where finishing pos is missing
     train = train.dropna(subset=["FinishPosition"])
     test = test.dropna(subset=["FinishPosition"])
 
     print(f"Train: {len(train)} rows ({train['Year'].min()}-{train['Year'].max()})")
     print(f"Test:  {len(test)} rows ({test_season})")
 
-    # Target: residual from grid position
+    # Predict resisual position (how many positions driver gains/loses)
     train["Residual"] = train["FinishPosition"] - train["GridPosition"]
     test["Residual"] = test["FinishPosition"] - test["GridPosition"]
 
+    # Replaces missing values in predictive features with 0's (since model only accpets numbers)
     X_train = train[FEATURE_COLUMNS].fillna(0)
     y_train = train["Residual"]
     X_test = test[FEATURE_COLUMNS].fillna(0)
 
+    # Create RF model with the params we defined
     model = RandomForestRegressor(**RF_PARAMS)
+    # Model looks at all training rows and builds n decision trees
     model.fit(X_train, y_train)
 
+    # Average out predictions
     predicted_residual = model.predict(X_test)
     test["PredictedPosition"] = test["GridPosition"] + predicted_residual
     test["PredictedPosition"] = test["PredictedPosition"].clip(1, 20)
@@ -74,24 +79,18 @@ def evaluate_model(y_true, y_pred, test_df: pd.DataFrame) -> dict:
 
     return metrics
 
-# Extract and rank feature importances
+# Extract and rank feature importances (i.e. which features contriubted the most to reducing prediction error)
+    # A feature with importance 0.15 means it was responsible for 15% of model's predictive power
 def get_feature_importance(model, top_n: int = 15) -> pd.DataFrame:
     importance_df = pd.DataFrame({
         "Feature": FEATURE_COLUMNS,
         "Importance": model.feature_importances_,
     }).sort_values("Importance", ascending=False).head(top_n)
 
-    print("\n--- Top Feature Importances ---")
-    for _, row in importance_df.iterrows():
-        bar = "█" * int(row["Importance"] * 100)
-        print(f"  {row['Feature']:30s} {row['Importance']:.4f} {bar}")
-
     return importance_df
-
-
  
-#Given feature data for an upcoming/specific race, predict finishing order
-    #Returns DataFrame sorted by predicted position. 
+# Given feature data for an upcoming/specific race, predict finishing order
+    # Returns DataFrame sorted by predicted position (Monte Carlo calls this before adding randomness)
 def predict_race(model, race_features: pd.DataFrame) -> pd.DataFrame:
    
     X = race_features[FEATURE_COLUMNS].fillna(0)
