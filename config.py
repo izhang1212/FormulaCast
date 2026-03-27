@@ -9,17 +9,17 @@ SEASONS = list(range(2018, 2026))
 
 # Random Forest Parameters
 RF_PARAMS = {
-    "n_estimators": 1000,
-    "max_depth": 8,
-    "min_samples_split": 15,
-    "min_samples_leaf": 6,
+    "n_estimators": 2000,
+    "max_depth": 5,
+    "min_samples_split": 20,
+    "min_samples_leaf": 10,
     "max_features": 0.5,
     "random_state": 42,
     "n_jobs": -1,
 }
 
 # Monte Carlo
-NUM_SIMULATIONS = 150
+NUM_SIMULATIONS = 20_000
 MC_RANDOM_SEED = 42
 
 POINTS_SYSTEM = {

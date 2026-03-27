@@ -6,5 +6,5 @@ f1_cache/
 venv/
 .env
 .DS_Store
-data
+/data
 /outputs

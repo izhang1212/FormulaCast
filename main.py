@@ -1,4 +1,6 @@
-# main.py
+"""
+main.py — Entry point for the F1 Race Simulator.
+"""
 
 import os
 import warnings
@@ -7,6 +9,7 @@ from src.data.data_pipeline import build_master_dataset
 from src.data.feature_engineering import build_feature_matrix
 from src.models.random_forest import train_model, get_feature_importance
 from src.models.monte_carlo import run_simulation
+from src.models.test import backtest_race
 from src.visualizations.position_heatmap import plot_position_heatmap
 from src.visualizations.podium_probabilities import plot_podium_probabilities
 from src.visualizations.feature_importance import plot_feature_importance
@@ -69,18 +72,20 @@ def run_sim(model, test_df):
     print(f"\nSimulating: {circuit} ({total_laps} laps)")
 
     results = run_simulation(race_data, total_laps)
-    return results, race_data, circuit
+    return results, race_data, circuit, total_laps
 
 
 def print_mc_results(results):
-    summary = results["summary"]
-    print(f"\n{'='*60}")
-    print(f"  MONTE CARLO RESULTS ({len(results['position_probs'])} drivers)")
-    print(f"{'='*60}")
-    print(f"\n{'Driver':<8} {'E[Pos]':>7} {'Win%':>6} {'Podium%':>8} {'Points%':>8} {'E[Pts]':>7}")
-    print("-" * 50)
+    summary = results["summary"].copy()
+    summary["PredictedRank"] = range(1, len(summary) + 1)
+
+    print(f"\n{'='*70}")
+    print(f"  MONTE CARLO RESULTS ({len(summary)} drivers)")
+    print(f"{'='*70}")
+    print(f"\n{'Driver':<8} {'Rank':>5} {'E[Pos]':>7} {'Win%':>6} {'Podium%':>8} {'Points%':>8} {'E[Pts]':>7}")
+    print("-" * 60)
     for _, row in summary.iterrows():
-        print(f"{row['Driver']:<8} {row['ExpectedPosition']:>7.1f} {row['WinProb']:>5.1f}% "
+        print(f"{row['Driver']:<8} P{int(row['PredictedRank']):<4} {row['ExpectedPosition']:>7.1f} {row['WinProb']:>5.1f}% "
               f"{row['PodiumProb']:>7.1f}% {row['PointsProb']:>7.1f}% {row['ExpectedPoints']:>7.2f}")
 
 
@@ -90,6 +95,27 @@ def print_model_metrics(metrics):
     print(f"{'='*60}")
     for k, v in metrics.items():
         print(f"  {k}: {v}")
+
+
+def print_accuracy(comparison, circuit):
+    print(f"\n{'='*70}")
+    print(f"  ACCURACY CHECK — {circuit}")
+    print(f"{'='*70}")
+    print(f"\n{'Driver':<8} {'Predicted':>10} {'Actual':>8} {'Error':>7}")
+    print("-" * 40)
+    for _, row in comparison.iterrows():
+        print(f"{row['Driver']:<8} {row['ExpectedPosition']:>10.1f} "
+              f"{int(row['FinishPosition']):>8} {row['Error']:>7.1f}")
+
+    mae = comparison["Error"].mean()
+    within_1 = (comparison["Error"] <= 1).mean() * 100
+    within_3 = (comparison["Error"] <= 3).mean() * 100
+    within_5 = (comparison["Error"] <= 5).mean() * 100
+
+    print(f"\n  MAE:                {mae:.2f} positions")
+    print(f"  Within 1 position:  {within_1:.1f}%")
+    print(f"  Within 3 positions: {within_3:.1f}%")
+    print(f"  Within 5 positions: {within_5:.1f}%")
 
 
 def run_visualizations(results, importance, circuit):
@@ -111,18 +137,19 @@ if __name__ == "__main__":
     print("  F1 Race Simulator — FormulaCast")
     print("=" * 60)
 
-    print("\n[Phase 1] Loading data...")
     df = run_pipeline()
 
-    print("\n[Phase 2] Engineering features...")
     df = run_features(df)
 
-    print("\n[Phase 3] Training model...")
+    print("\nRandom Forest:")
     model, test_df, metrics, importance = run_model(df)
     print_model_metrics(metrics)
 
-    print("\n[Phase 4] Monte Carlo simulation...")
-    results, race_data, circuit = run_sim(model, test_df)
+    print("\nMonte-Carlo:")
+    results, race_data, circuit, total_laps = run_sim(model, test_df)
     print_mc_results(results)
 
+    print("\nAccuracy:")
+    comparison = backtest_race(race_data, total_laps)
+    print_accuracy(comparison, circuit)
    
