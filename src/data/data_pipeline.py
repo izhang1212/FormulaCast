@@ -10,24 +10,30 @@ fastf1.Cache.enable_cache(CACHE_DIR)
 
 def load_race_session(year: int, round_number: int) -> fastf1.core.Session:
     # Load a single race session with all data
-    session = fastf1.get_session(year, round_number, "R")
-    session.load(weather = True, telemetry = False, messages = True)
-    return session
+    race = fastf1.get_session(year, round_number, "R")
+    race.load(weather=True, telemetry=False, messages=True)
 
-def extract_race_data(session: fastf1.core.Session) -> pd.DataFrame:
-    # Extract data from a loaded race sesssion
-        # Returns one row per driver
+    try:
+        quali = fastf1.get_session(year, round_number, "Q")
+        quali.load(telemetry=False)
+    except Exception:
+        quali = None
+
+    return race, quali
+
+def extract_race_data(session, quali=None) -> pd.DataFrame:
     laps = session.laps
     results = session.results
     weather = session.weather_data
 
-    race_df = results[["Abbreviation", "GridPosition", "Position", "Points", "Status", "TeamName"]].copy()
-    race_df.columns = ["Driver", "GridPosition", "FinishPosition", "Points", "Status", "Team"]
+    race_df = results[["Abbreviation", "GridPosition", "Position",
+                        "Points", "Status", "TeamName"]].copy()
+    race_df.columns = ["Driver", "GridPosition", "FinishPosition",
+                        "Points", "Status", "Team"]
 
-    # Track lap stats by driver
-        # average laptime, best lap time, num laps, num pitstops
     lap_stats = (
-        laps.groupby("Driver").agg(
+        laps.groupby("Driver")
+        .agg(
             AvgLapTime=("LapTime", lambda x: x.dt.total_seconds().mean()),
             BestLapTime=("LapTime", lambda x: x.dt.total_seconds().min()),
             NumLaps=("LapNumber", "max"),
@@ -36,10 +42,7 @@ def extract_race_data(session: fastf1.core.Session) -> pd.DataFrame:
     )
 
     tire_strats = (
-        laps.groupby("Driver")["Compound"]
-        .apply(lambda x: list(x.dropna().unique()))
-        .reset_index()
-        .rename(columns = {"Compound": "TireCompunds"})
+        laps.groupby("Driver")["Compound"].apply(lambda x: list(x.dropna().unique())).reset_index().rename(columns={"Compound": "TireCompounds"})
     )
 
     weather_summary = {
@@ -53,6 +56,11 @@ def extract_race_data(session: fastf1.core.Session) -> pd.DataFrame:
     race_df = race_df.merge(lap_stats, on="Driver", how="left")
     race_df = race_df.merge(tire_strats, on="Driver", how="left")
 
+    if quali is not None:
+        quali_data = extract_quali_data(quali)
+        if not quali_data.empty:
+            race_df = race_df.merge(quali_data, on="Driver", how="left")
+
     for col, val in weather_summary.items():
         race_df[col] = val
 
@@ -64,6 +72,22 @@ def extract_race_data(session: fastf1.core.Session) -> pd.DataFrame:
     race_df["DNF"] = ~race_df["Status"].isin(["Finished", "+1 Lap", "+2 Laps", "+3 Laps"])
 
     return race_df
+
+# extract qualifying pace gap data
+def extract_quali_data(quali) -> pd.DataFrame:
+    if quali is None:
+        return pd.DataFrame()
+
+    laps = quali.laps
+    best_laps = (
+        laps.groupby("Driver")["LapTime"].min().dt.total_seconds().reset_index().rename(columns={"LapTime": "QualiBestTime"})
+    )
+
+    pole_time = best_laps["QualiBestTime"].min()
+    best_laps["QualiGapToPole"] = best_laps["QualiBestTime"] - pole_time
+    best_laps["QualiGapPct"] = (best_laps["QualiGapToPole"] / pole_time) * 100
+
+    return best_laps
 
 
 #Pull every race from every season in SEASONS.
@@ -93,8 +117,8 @@ def build_master_dataset() -> pd.DataFrame:
         season_races = []
         for rnd in tqdm(race_rounds, desc=f"{year}"):
             try:
-                session = load_race_session(year, rnd)
-                race_data = extract_race_data(session)
+                race, quali = load_race_session(year, rnd)
+                race_data = extract_race_data(race, quali)
                 season_races.append(race_data)
             except Exception as e:
                 print(f"  Skipping {year} Round {rnd}: {e}")

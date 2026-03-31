@@ -186,32 +186,39 @@ def add_grid_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def add_quali_pace_features(df: pd.DataFrame) -> pd.DataFrame:
+    if "QualiGapToPole" not in df.columns:
+        df["QualiGapToPole"] = np.nan
+        df["QualiGapPct"] = np.nan
+
+    df["QualiGapToPole"] = df["QualiGapToPole"].fillna(df["QualiGapToPole"].median())
+    df["QualiGapPct"] = df["QualiGapPct"].fillna(df["QualiGapPct"].median())
+
+    team_best = df.groupby(["Year", "RoundNumber", "Team"])["QualiGapToPole"].transform("min")
+    df["QualiGapToTeammate"] = df["QualiGapToPole"] - team_best
+
+    return df
+
 # Apply all feature engineering steps
     # Returns: DataFrame with all new columns added
 def build_feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    print("Adding driver rolling features...")
     df = add_driver_rolling_features(df)
 
-    print("Adding weighted features...")
     df = add_weighted_features(df)
 
-    print("Adding constructor features...")
     df = add_constructor_features(df)
 
-    print("Adding qualifying features...")
     df = add_qualifying_features(df)
 
-    print("Adding track features...")
     df = add_track_features(df)
 
-    print("Adding weather features...")
     df = add_weather_features(df)
 
-    print("Adding race pace features...")
     df = add_race_pace_features(df)
 
-    print("Adding grid interaction features...")
     df = add_grid_interaction_features(df)
+
+    df = add_quali_pace_features(df)
 
     cols_to_check = [c for c in ["AvgFinish_Last3"] if c in df.columns]
     if cols_to_check:
@@ -239,6 +246,9 @@ FEATURE_COLUMNS = [
     "CareerRaces",
     "DNF_LastRace",
     "FieldStrength",
+    "QualiGapToPole",
+    "QualiGapPct",
+    "QualiGapToTeammate",
 ]
 
 TARGET_COLUMN = "FinishPosition"
