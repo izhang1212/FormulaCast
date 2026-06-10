@@ -1,8 +1,8 @@
 # Pull and cache F1 data via FastF1
 
-import fastf1
-import pandas as pd
-from tqdm import tqdm
+import fastf1 
+import pandas as pd 
+from tqdm import tqdm 
 from config import SEASONS, CACHE_DIR
 import os
 
