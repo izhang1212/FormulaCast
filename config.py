@@ -5,7 +5,7 @@ PROJECT_ROOT = Path(__file__).parent
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "f1_cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-SEASONS = list(range(2018, 2026))
+SEASONS = list(range(2018, 2027))
 
 # Random Forest Parameters
 RF_PARAMS = {

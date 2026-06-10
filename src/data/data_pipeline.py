@@ -21,6 +21,23 @@ def load_race_session(year: int, round_number: int) -> fastf1.core.Session:
 
     return race, quali
 
+
+def load_practice_sessions(year: int, round_number: int) -> list:
+    """Load all available practice sessions (FP1/FP2/FP3, or just FP1 on sprints).
+    Returns a list of loaded sessions; missing ones are skipped, so it works
+    for both conventional and sprint weekends without special-casing."""
+    sessions = []
+    for ident in ["FP1", "FP2", "FP3"]:
+        try:
+            fp = fastf1.get_session(year, round_number, ident)
+            fp.load(telemetry=False, weather=False, messages=False)
+            if fp.laps is not None and len(fp.laps) > 0:
+                sessions.append(fp)
+        except Exception:
+            continue   # session doesn't exist (sprint weekend) or no data — fine
+    return sessions
+
+
 def extract_race_data(session, quali=None) -> pd.DataFrame:
     laps = session.laps
     results = session.results
@@ -90,6 +107,69 @@ def extract_quali_data(quali) -> pd.DataFrame:
     return best_laps
 
 
+def _clean_long_run_laps(laps: pd.DataFrame) -> pd.DataFrame:
+    """Keep only representative green-flag long-run laps.
+    Removes in/out laps, non-green laps, and per-driver time outliers so the
+    average reflects true race pace, not quali sims or traffic-compromised laps."""
+    df = laps.copy()
+    df = df[df["LapTime"].notna()]
+    # Drop in-laps and out-laps (pit involvement distorts the time).
+    if "PitInTime" in df.columns and "PitOutTime" in df.columns:
+        df = df[df["PitInTime"].isna() & df["PitOutTime"].isna()]
+    # Green-flag only, if track status is available ("1" == all clear).
+    if "TrackStatus" in df.columns:
+        df = df[df["TrackStatus"].astype(str) == "1"]
+    if df.empty:
+        return df
+    df["LapSeconds"] = df["LapTime"].dt.total_seconds()
+    # Remove obvious outliers per driver (aborted/slow laps) via IQR.
+    cleaned = []
+    for drv, g in df.groupby("Driver"):
+        if len(g) < 3:
+            continue
+        q1, q3 = g["LapSeconds"].quantile([0.25, 0.75])
+        iqr = q3 - q1
+        keep = g[(g["LapSeconds"] >= q1 - 1.5 * iqr) & (g["LapSeconds"] <= q3 + 1.5 * iqr)]
+        cleaned.append(keep)
+    return pd.concat(cleaned, ignore_index=True) if cleaned else df.iloc[0:0]
+
+
+def extract_practice_pace(year: int, round_number: int) -> pd.DataFrame:
+    """One row per driver: long-run practice pace + gap to fastest + teammate delta.
+    Empty frame if no practice data (so callers merge with how='left' and get NaN)."""
+    empty = pd.DataFrame(columns=["Driver", "PracticePace", "PracticePaceGap",
+                                  "PracticePaceVsTeammate"])
+    sessions = load_practice_sessions(year, round_number)
+    if not sessions:
+        return empty
+
+    all_laps = pd.concat([s.laps for s in sessions], ignore_index=True)
+    clean = _clean_long_run_laps(all_laps)
+    if clean.empty:
+        return empty
+
+    # Trimmed mean of clean long-run laps = race-representative pace.
+    pace = (clean.groupby("Driver")["LapSeconds"]
+            .apply(lambda x: x.sort_values().iloc[: max(3, int(len(x) * 0.7))].mean())
+            .reset_index().rename(columns={"LapSeconds": "PracticePace"}))
+
+    # Gap to the fastest driver's practice pace (track-relative, comparable across races).
+    pace["PracticePaceGap"] = pace["PracticePace"] - pace["PracticePace"].min()
+
+    # Teammate delta: needs team mapping. Pull it from the laps' Team column.
+    if "Team" in all_laps.columns:
+        team_map = (all_laps.dropna(subset=["Team"])
+                    .groupby("Driver")["Team"].first().reset_index())
+        pace = pace.merge(team_map, on="Driver", how="left")
+        team_best = pace.groupby("Team")["PracticePace"].transform("min")
+        pace["PracticePaceVsTeammate"] = pace["PracticePace"] - team_best
+        pace = pace.drop(columns=["Team"])
+    else:
+        pace["PracticePaceVsTeammate"] = pd.NA
+
+    return pace
+
+
 #Pull every race from every season in SEASONS.
     # Saves per-season CSVs so progress isn't lost on rate limit errors.
 def build_master_dataset() -> pd.DataFrame:
@@ -119,6 +199,9 @@ def build_master_dataset() -> pd.DataFrame:
             try:
                 race, quali = load_race_session(year, rnd)
                 race_data = extract_race_data(race, quali)
+                practice = extract_practice_pace(year, rnd)
+                if not practice.empty:
+                    race_data = race_data.merge(practice, on="Driver", how="left")
                 season_races.append(race_data)
             except Exception as e:
                 print(f"  Skipping {year} Round {rnd}: {e}")

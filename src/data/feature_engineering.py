@@ -108,10 +108,15 @@ def add_track_features(df: pd.DataFrame) -> pd.DataFrame:
 # Bin weather into simple categories
     # E.g. rain, wind, temp
 def add_weather_features(df: pd.DataFrame) -> pd.DataFrame:
-    df["IsWetRace"] = df["Rainfall"].astype(int)
+    # Rainfall is NaN for future races and may read back from CSV as bool or string.
+    rain = df["Rainfall"]
+    if rain.dtype == object:
+        rain = rain.map({True: 1, False: 0, "True": 1, "False": 0})
+    df["IsWetRace"] = rain.fillna(0).astype(int)
+
+    # NaN temp/wind compare as False → sensible default, no crash.
     df["IsHotRace"] = (df["AvgTrackTemp"] > df["AvgTrackTemp"].quantile(0.75)).astype(int)
     df["IsWindy"] = (df["AvgWindSpeed"] > df["AvgWindSpeed"].quantile(0.75)).astype(int)
-
     return df
     
 # Add exponentially weighted stats that bias toward recent races.
@@ -249,6 +254,9 @@ FEATURE_COLUMNS = [
     "QualiGapToPole",
     "QualiGapPct",
     "QualiGapToTeammate",
+    "PracticePace",
+    "PracticePaceGap",
+    "PracticePaceVsTeammate",
 ]
 
 TARGET_COLUMN = "FinishPosition"

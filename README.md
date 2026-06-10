@@ -8,6 +8,8 @@
 
 **Goal:** To find a full probabilty distirubtion for every competing driver's finishing position 
 
+**Set Up Instructions:** Use update_season.py to download all seasons from 2018-2026. Once done, run main and test.
+
 ## Strategies Implemented:
 - **Random Forest Regression:**  Walk-forward validated model predicting finishing positions from 20+ engineered features, with exponentially weighted rolling averages to capture recent form
 - **Monte Carlo Simulation** — 10,000 race iterations with stochastic event modeling:

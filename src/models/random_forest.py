@@ -94,9 +94,10 @@ def get_feature_importance(model, top_n: int = 15) -> pd.DataFrame:
 # Given feature data for an upcoming/specific race, predict finishing order
     # Returns DataFrame sorted by predicted position (Monte Carlo calls this before adding randomness)
 def predict_race(model, race_features: pd.DataFrame) -> pd.DataFrame:
-   
     X = race_features[FEATURE_COLUMNS].fillna(0)
     race_features = race_features.copy()
-    race_features["PredictedPosition"] = model.predict(X)
-
+    predicted_residual = model.predict(X)
+    race_features["PredictedPosition"] = (
+        race_features["GridPosition"] + predicted_residual
+    ).clip(1, len(race_features))
     return race_features.sort_values("PredictedPosition")
