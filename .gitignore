@@ -1,10 +1,40 @@
-__pycache__/
-*.py[cod]
-/data/raw
-f1_cache/
-*.joblib
-venv/
-.env
+# Backend
+api/__pycache__/
+backend/__pycache__/
+backend/**/*.py[cod]
+backend/data/
+backend/outputs/
+backend/f1_cache/
+backend/*.joblib
+backend/venv/
+backend/.env
+
+# Frontend logs
+frontend/logs/
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# Editor directories and files
+frontend/.vscode/*
+!frontend/.vscode/extensions.json
+frontend/.idea/
+frontend/*.suo
+frontend/*.ntvs*
+frontend/*.njsproj
+frontend/*.sln
+frontend/*.sw?
+
+# OS files
 .DS_Store
-/data
-/outputs
+backend/.DS_Store
+frontend/.DS_Store

@@ -1,0 +1,187 @@
+{
+  "year": 2026,
+  "round": 8,
+  "name": "Austrian Grand Prix",
+  "laps": 57,
+  "mode": "sampled",
+  "race_date": "2026-06-28 13:00:00",
+  "qualifying_date": "2026-06-27 14:00:00",
+  "drivers": [
+    {
+      "driver": "ANT",
+      "expected_position": 3.2,
+      "win_pct": 44.5,
+      "podium_pct": 78.3,
+      "points_pct": 94.0,
+      "expected_points": 18.43
+    },
+    {
+      "driver": "HAM",
+      "expected_position": 3.9,
+      "win_pct": 26.7,
+      "podium_pct": 61.0,
+      "points_pct": 93.8,
+      "expected_points": 16.09
+    },
+    {
+      "driver": "RUS",
+      "expected_position": 5.1,
+      "win_pct": 9.5,
+      "podium_pct": 50.2,
+      "points_pct": 91.9,
+      "expected_points": 12.58
+    },
+    {
+      "driver": "LEC",
+      "expected_position": 5.5,
+      "win_pct": 6.1,
+      "podium_pct": 26.3,
+      "points_pct": 93.5,
+      "expected_points": 11.04
+    },
+    {
+      "driver": "PIA",
+      "expected_position": 5.8,
+      "win_pct": 6.9,
+      "podium_pct": 27.5,
+      "points_pct": 93.5,
+      "expected_points": 10.6
+    },
+    {
+      "driver": "NOR",
+      "expected_position": 6.5,
+      "win_pct": 5.8,
+      "podium_pct": 30.2,
+      "points_pct": 88.7,
+      "expected_points": 9.5
+    },
+    {
+      "driver": "VER",
+      "expected_position": 6.9,
+      "win_pct": 0.5,
+      "podium_pct": 26.2,
+      "points_pct": 90.4,
+      "expected_points": 8.26
+    },
+    {
+      "driver": "HAD",
+      "expected_position": 10.1,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 60.6,
+      "expected_points": 2.54
+    },
+    {
+      "driver": "OCO",
+      "expected_position": 10.4,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 71.9,
+      "expected_points": 2.79
+    },
+    {
+      "driver": "LAW",
+      "expected_position": 11.6,
+      "win_pct": 0.0,
+      "podium_pct": 0.2,
+      "points_pct": 37.9,
+      "expected_points": 1.55
+    },
+    {
+      "driver": "GAS",
+      "expected_position": 12.1,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 36.1,
+      "expected_points": 1.49
+    },
+    {
+      "driver": "SAI",
+      "expected_position": 13.3,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 30.4,
+      "expected_points": 1.4
+    },
+    {
+      "driver": "LIN",
+      "expected_position": 13.8,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 25.9,
+      "expected_points": 1.28
+    },
+    {
+      "driver": "BOR",
+      "expected_position": 13.9,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 28.1,
+      "expected_points": 0.99
+    },
+    {
+      "driver": "BEA",
+      "expected_position": 14.2,
+      "win_pct": 0.0,
+      "podium_pct": 0.1,
+      "points_pct": 15.0,
+      "expected_points": 1.01
+    },
+    {
+      "driver": "HUL",
+      "expected_position": 14.7,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 14.4,
+      "expected_points": 0.22
+    },
+    {
+      "driver": "COL",
+      "expected_position": 15.4,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 14.0,
+      "expected_points": 0.82
+    },
+    {
+      "driver": "ALB",
+      "expected_position": 15.4,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 8.7,
+      "expected_points": 0.14
+    },
+    {
+      "driver": "PER",
+      "expected_position": 17.3,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 1.1,
+      "expected_points": 0.01
+    },
+    {
+      "driver": "ALO",
+      "expected_position": 17.3,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 8.9,
+      "expected_points": 0.24
+    },
+    {
+      "driver": "STR",
+      "expected_position": 17.5,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 1.2,
+      "expected_points": 0.02
+    },
+    {
+      "driver": "BOT",
+      "expected_position": 19.2,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 0.0,
+      "expected_points": 0.0
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "year": 2026,
+    "round": 7,
+    "name": "Barcelona Grand Prix",
+    "mode": "sampled",
+    "race_date": "2026-06-14 13:00:00",
+    "qualifying_date": "2026-06-13 14:00:00"
+  },
+  {
+    "year": 2026,
+    "round": 8,
+    "name": "Austrian Grand Prix",
+    "mode": "sampled",
+    "race_date": "2026-06-28 13:00:00",
+    "qualifying_date": "2026-06-27 14:00:00"
+  }
+]
