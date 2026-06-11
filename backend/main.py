@@ -12,9 +12,6 @@ from backend.src.models.test import backtest_race
 from backend.src.future.predict_future import (
     load_future_races, list_future_races, get_race_rows, predict_future_race,
 )
-from backend.src.visualizations.position_heatmap import plot_position_heatmap
-from backend.src.visualizations.podium_probabilities import plot_podium_probabilities
-from backend.src.visualizations.feature_importance import plot_feature_importance
 from backend.src.models.track_calibration import calibrate_track_events, get_track_params
 
 
@@ -240,6 +237,10 @@ def print_accuracy(comparison, circuit):
 
 
 def run_visualizations(results, importance, circuit):
+    from backend.src.visualizations.feature_importance import plot_feature_importance
+    from backend.src.visualizations.podium_probabilities import plot_podium_probabilities
+    from backend.src.visualizations.position_heatmap import plot_position_heatmap
+
     save_dir = os.path.join(BASE_DIR, "outputs", "sim_results")
     os.makedirs(save_dir, exist_ok=True)
 
