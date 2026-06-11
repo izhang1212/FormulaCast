@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getFutureRaces, getFutureRace } from "../api";
-import { withMeta, TRACK_BY_NAME } from "../config";
+import { withMeta, trackForRaceName } from "../config";
 import CircuitSVG from "../components/CircuitSVG";
 import PredictionBoard from "../components/PredictionBoard";
 
@@ -52,7 +52,7 @@ export default function Predict() {
                                 <div className="top"><div className="rnd">Round {r.round}</div>
                                     <h3>{shortRaceName(r.name)}</h3>
                                     <div className="when">{formatWeekend(r.race_date)}</div></div>
-                                <div className="map"><CircuitSVG track={TRACK_BY_NAME[r.name]} /></div>
+                                <div className="map"><CircuitSVG track={trackForRaceName(r.name)} /></div>
                                 <button className={`runbtn ${active?.year === r.year && active?.round === r.round ? "done" : ""}`} onClick={() => setActive(r)}>
                                     {active?.year === r.year && active?.round === r.round ? "Showing results ↓" : "Run prediction →"}
                                 </button>

@@ -93,6 +93,32 @@ export const LOC_BY_NAME = {
   "Russian Grand Prix":"Sochi Autodrom · RUS","70th Anniversary Grand Prix":"Silverstone · GBR",
 };
 
+function normalizeRaceName(name) {
+  const text = String(name || "").trim();
+  if (!text) return "";
+  const normalized = text
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/\b\w/g, char => char.toUpperCase());
+
+  if (TRACK_BY_NAME[normalized]) return normalized;
+
+  const grandPrixName = normalized.endsWith(" Grand Prix")
+    ? normalized
+    : `${normalized} Grand Prix`;
+  if (TRACK_BY_NAME[grandPrixName]) return grandPrixName;
+
+  return text;
+}
+
+export function trackForRaceName(name) {
+  return TRACK_BY_NAME[normalizeRaceName(name)] || null;
+}
+
+export function locForRaceName(name) {
+  return LOC_BY_NAME[normalizeRaceName(name)] || null;
+}
+
 // Per-season lineups — used only to color the driver tick by team.
 export const ROSTERS = {
   2018:[["HAM","MER"],["BOT","MER"],["VET","FER"],["RAI","FER"],["VER","RED"],["RIC","RED"],["HUL","REN"],["SAI","REN"],["PER","FI"],["OCO","FI"],["ALO","McL"],["VAN","McL"],["GAS","TR"],["HAR","TR"],["MAG","HAA"],["GRO","HAA"],["LEC","SAU"],["ERI","SAU"],["STR","WIL"],["SIR","WIL"]],
@@ -126,7 +152,7 @@ export function teamColor(year, driver) {
 export function withMeta(race) {
   return {
     ...race,
-    track: TRACK_BY_NAME[race.name] || null,
-    loc: LOC_BY_NAME[race.name] || `Round ${race.round} · ${race.year}`,
+    track: trackForRaceName(race.name),
+    loc: locForRaceName(race.name) || `Round ${race.round} · ${race.year}`,
   };
 }
