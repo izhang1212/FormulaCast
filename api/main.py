@@ -48,11 +48,18 @@ app = FastAPI(
     description="Serves FormulaCast prediction JSON and refreshes model exports.",
 )
 
+_frontend_origins = [
+    origin.strip()
+    for origin in os.environ.get("FRONTEND_ORIGIN", "").split(",")
+    if origin.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        *_frontend_origins,
     ],
     allow_credentials=True,
     allow_methods=["*"],
