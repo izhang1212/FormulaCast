@@ -633,7 +633,8 @@ nav {
 
 .bfoot {
   display: flex;
-  gap: 22px;
+  gap: 28px;
+  align-items: flex-start;
   padding: 14px 18px;
   background: var(--panel-2);
   border-top: 1px solid var(--line-soft);
@@ -647,7 +648,7 @@ nav {
 
 .bfoot .stat .k {
   font-family: 'JetBrains Mono';
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: .1em;
   color: var(--grey-2);
   text-transform: uppercase;
@@ -656,13 +657,18 @@ nav {
 .bfoot .stat .v {
   font-family: 'Saira Condensed';
   font-weight: 700;
-  font-size: 21px;
+  font-size: 25px;
   margin-top: 2px;
 }
 
 .bfoot .stat .v small {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--grey);
+}
+
+.bfoot .grid-stat {
+  margin-left: auto;
+  text-align: right;
 }
 
 .races {

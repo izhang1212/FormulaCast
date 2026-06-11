@@ -14,8 +14,9 @@ export default function AccuracyBoard({ race, limit }) {
   const errs = finished.map(d => Math.abs(d.expected_position - d.actual));
   const mae = errs.length ? errs.reduce((a, b) => a + b, 0) / errs.length : 0;
   const w3 = errs.length ? Math.round(errs.filter(e => e <= 3).length / errs.length * 100) : 0;
-  const exact = finished.length
-    ? Math.round(finished.filter(d => ranked[d.driver] === d.actual).length / finished.length * 100)
+  const topTenActuals = finished.filter(d => d.actual <= 10);
+  const exact = topTenActuals.length
+    ? Math.round(topTenActuals.filter(d => ranked[d.driver] === d.actual).length / topTenActuals.length * 100)
     : 0;
   const predictedPodium = new Set(finished.filter(d => ranked[d.driver] <= 3).map(d => d.driver));
   const actualPodium = new Set(finished.filter(d => d.actual <= 3).map(d => d.driver));
@@ -54,10 +55,10 @@ export default function AccuracyBoard({ race, limit }) {
       <div className="bfoot">
         <div className="stat"><span className="k">Mean abs error</span><span className="v">{mae.toFixed(2)} <small>pos</small></span></div>
         <div className="stat"><span className="k">Within 3</span><span className="v">{w3}<small>%</small></span></div>
-        <div className="stat"><span className="k">Podium match</span><span className="v">{podiumHits}<small>/3</small></span></div>
+        <div className="stat"><span className="k">Podium hit rate</span><span className="v">{podiumHits}<small>/3</small></span></div>
         <div className="stat"><span className="k">Points match</span><span className="v">{pointsHits}<small>/10</small></span></div>
-        <div className="stat"><span className="k">Exact finish</span><span className="v">{exact}<small>%</small></span></div>
-        <div className="stat"><span className="k">Grid</span>
+        <div className="stat"><span className="k">Top 10 exact</span><span className="v">{exact}<small>%</small></span></div>
+        <div className="stat grid-stat"><span className="k">Grid</span>
           <span className="v" style={{ color: "#36d399", fontSize: 16, letterSpacing: ".05em" }}>OFFICIAL</span></div>
       </div>
     </div>
