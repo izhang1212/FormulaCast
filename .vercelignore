@@ -1,10 +1,10 @@
 .git/
 .vercel/
+api/
+backend/
+requirements.txt
 frontend/node_modules/
 frontend/dist/
-backend/data/
-backend/f1_cache/
-backend/outputs/
 **/__pycache__/
 **/*.py[cod]
 *.joblib
