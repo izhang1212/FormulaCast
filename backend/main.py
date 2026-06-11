@@ -2,6 +2,7 @@ import os
 import glob
 import warnings
 import pandas as pd 
+from backend.config import DATA_ROOT
 from backend.src.data.feature_engineering import build_feature_matrix
 from backend.src.future.future_races import build_future_race_frame, save_future_races
 from backend.src.future.prepare_future import prepare_future_for_prediction
@@ -20,10 +21,10 @@ from backend.src.models.track_calibration import calibrate_track_events, get_tra
 # Anchor every data path to the project root so they resolve no matter where
 # python is launched from. This is why output reliably lands in data/processed/.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_OUTPUT_PATH = os.path.join(BASE_DIR, "data", "processed", "master_race_data.csv")
-FEATURES_OUTPUT_PATH = os.path.join(BASE_DIR, "data", "processed", "feature_matrix.csv")
-SEASONS_DIR = os.path.join(BASE_DIR, "data", "processed", "seasons")
-FUTURE_PATH = os.path.join(BASE_DIR, "data", "processed", "future_races.csv")
+DATA_OUTPUT_PATH = os.path.join(DATA_ROOT, "processed", "master_race_data.csv")
+FEATURES_OUTPUT_PATH = os.path.join(DATA_ROOT, "processed", "feature_matrix.csv")
+SEASONS_DIR = os.path.join(DATA_ROOT, "processed", "seasons")
+FUTURE_PATH = os.path.join(DATA_ROOT, "processed", "future_races.csv")
 
 # Set to a specific year to force a test season
     # leave None to auto-use the most recent season (2026) present in the data.

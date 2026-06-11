@@ -1,12 +1,24 @@
 from pathlib import Path
 import os
 
-PROJECT_ROOT = Path(__file__).parent
-CACHE_DIR = os.path.join(os.path.dirname(__file__), "f1_cache")
+BASE_DIR = Path(__file__).resolve().parent   # the backend/ folder
+PROJECT_ROOT = BASE_DIR.parent
+_VERCEL_RUNTIME = bool(os.environ.get("VERCEL"))
+_RUNTIME_ROOT = Path(os.environ.get(
+    "FORMULACAST_RUNTIME_ROOT",
+    "/tmp/formulacast" if _VERCEL_RUNTIME else BASE_DIR,
+))
+DATA_ROOT = Path(os.environ.get(
+    "FORMULACAST_DATA_ROOT",
+    _RUNTIME_ROOT / "data" if _VERCEL_RUNTIME else BASE_DIR / "data",
+))
+CACHE_DIR = os.environ.get(
+    "FORMULACAST_CACHE_DIR",
+    str(_RUNTIME_ROOT / "f1_cache" if _VERCEL_RUNTIME else BASE_DIR / "f1_cache"),
+)
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-BASE_DIR = Path(__file__).resolve().parent   # the backend/ folder
-PREDICTIONS_DIR = BASE_DIR / "predictions"
+PREDICTIONS_DIR = DATA_ROOT / "predictions"
 
 SEASONS = list(range(2018, 2027))
 

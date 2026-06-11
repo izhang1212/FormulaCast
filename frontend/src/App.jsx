@@ -5,7 +5,7 @@ import Predict from "./views/Predict";
 import Replay from "./views/Replay";
 import About from "./views/About";
 import Performance from "./views/Performance";
-import { getRefreshStatus, hasLiveBackend, startLocalModelRefresh } from "./api";
+import { bootstrapLiveModel, getRefreshStatus, hasLiveBackend, startLocalModelRefresh } from "./api";
 
 export default function App() {
   const [view, setView] = useState("home");
@@ -39,7 +39,9 @@ export default function App() {
         });
     };
 
-    startLocalModelRefresh()
+    const startRefresh = import.meta.env.PROD ? bootstrapLiveModel : startLocalModelRefresh;
+
+    startRefresh()
       .then(applyStatus)
       .catch(() => poll());
 

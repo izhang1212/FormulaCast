@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import os
 import shutil
 import threading
 import traceback
@@ -12,16 +14,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from backend.config import BASE_DIR
+from backend.config import DATA_ROOT
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-PREDICTIONS_DIR = (BASE_DIR / "data" / "predictions").resolve()
+PREDICTIONS_DIR = (DATA_ROOT / "predictions").resolve()
 FRONTEND_PREDICTIONS_DIR = (PROJECT_ROOT / "frontend" / "public" / "predictions").resolve()
 
 
 class RefreshRequest(BaseModel):
     update_seasons: bool = True
+    hydrate_supabase: bool = False
     rebuild_local_data: bool = False
     historical: bool = True
     future: bool = True
@@ -104,6 +107,12 @@ def _update_completed_seasons(max_seasons: int) -> list[int]:
     return updated
 
 
+def _hydrate_supabase_seasons() -> list[str]:
+    from backend.cloud_storage import hydrate_seasons_from_supabase
+
+    return hydrate_seasons_from_supabase()
+
+
 def _force_future_rebuild() -> None:
     from backend.main import FUTURE_PATH
 
@@ -142,6 +151,12 @@ def _run_refresh_job(request: RefreshRequest, lock_acquired: bool = False) -> No
             updated = _update_completed_seasons(request.max_seasons)
             details.append(
                 f"Updated season files: {', '.join(map(str, updated)) if updated else 'none needed'}."
+            )
+
+        if request.hydrate_supabase:
+            downloaded = _hydrate_supabase_seasons()
+            details.append(
+                f"Downloaded Supabase season files: {', '.join(downloaded) if downloaded else 'none'}."
             )
 
         if request.rebuild_local_data:
@@ -195,6 +210,12 @@ def _run_refresh_job(request: RefreshRequest, lock_acquired: bool = False) -> No
 
 
 def _schedule_refresh(background_tasks: BackgroundTasks, request: RefreshRequest) -> RefreshState:
+    if os.environ.get("VERCEL"):
+        if not _refresh_lock.acquire(blocking=False):
+            raise HTTPException(status_code=409, detail="A refresh is already running")
+        _run_refresh_job(request, True)
+        return _refresh_state
+
     if not _refresh_lock.acquire(blocking=False):
         raise HTTPException(status_code=409, detail="A refresh is already running")
 
@@ -207,6 +228,45 @@ def _schedule_refresh(background_tasks: BackgroundTasks, request: RefreshRequest
     )
     background_tasks.add_task(_run_refresh_job, request, True)
     return _refresh_state
+
+
+def _read_json(path: Path):
+    with open(path) as f:
+        return json.load(f)
+
+
+def _collect_prediction_payloads() -> dict:
+    payload = {
+        "racesIndex": [],
+        "races": {},
+        "futureIndex": [],
+        "future": {},
+        "performance": None,
+    }
+
+    races_path = PREDICTIONS_DIR / "races.json"
+    if races_path.exists():
+        payload["racesIndex"] = _read_json(races_path)
+        for race in payload["racesIndex"]:
+            key = f"{race['year']}/round_{race['round']}"
+            path = PREDICTIONS_DIR / str(race["year"]) / f"round_{race['round']}.json"
+            if path.exists():
+                payload["races"][key] = _read_json(path)
+
+    future_index_path = PREDICTIONS_DIR / "future" / "index.json"
+    if future_index_path.exists():
+        payload["futureIndex"] = _read_json(future_index_path)
+        for race in payload["futureIndex"]:
+            key = f"{race['year']}_round_{race['round']}"
+            path = PREDICTIONS_DIR / "future" / f"{key}.json"
+            if path.exists():
+                payload["future"][key] = _read_json(path)
+
+    performance_path = PREDICTIONS_DIR / "performance.json"
+    if performance_path.exists():
+        payload["performance"] = _read_json(performance_path)
+
+    return payload
 
 
 @app.get("/api/health")
@@ -236,12 +296,37 @@ def refresh_all(background_tasks: BackgroundTasks, request: RefreshRequest = Bod
     return _schedule_refresh(background_tasks, request)
 
 
+@app.post("/api/bootstrap")
+def bootstrap():
+    request = RefreshRequest(
+        update_seasons=False,
+        hydrate_supabase=True,
+        rebuild_local_data=True,
+        historical=True,
+        future=True,
+        performance=True,
+        sync_frontend=False,
+        force_future_schedule=True,
+        max_seasons=0,
+    )
+    if not _refresh_lock.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="A refresh is already running")
+    _run_refresh_job(request, True)
+    if _refresh_state.state == "failed":
+        raise HTTPException(status_code=500, detail=_refresh_state.message)
+    return {
+        "refresh": _refresh_state,
+        "predictions": _collect_prediction_payloads(),
+    }
+
+
 @app.post("/api/refresh/local", response_model=RefreshState, status_code=202)
 def refresh_local(background_tasks: BackgroundTasks):
     return _schedule_refresh(
         background_tasks,
         RefreshRequest(
             update_seasons=False,
+            hydrate_supabase=True,
             rebuild_local_data=True,
             historical=True,
             future=True,

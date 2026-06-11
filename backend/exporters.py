@@ -19,7 +19,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from backend.config import RF_PARAMS
+from backend.config import DATA_ROOT, RF_PARAMS
 from backend.main import (
     BASE_DIR,
     DATA_OUTPUT_PATH,
@@ -39,7 +39,7 @@ from backend.src.models.monte_carlo import COLUMN_MAP, export_index, export_race
 from backend.src.models.track_calibration import calibrate_track_events, get_track_params
 
 
-PREDICTIONS_DIR = Path(BASE_DIR) / "data" / "predictions"
+PREDICTIONS_DIR = Path(DATA_ROOT) / "predictions"
 FUTURE_DIR = PREDICTIONS_DIR / "future"
 PERFORMANCE_PATH = PREDICTIONS_DIR / "performance.json"
 

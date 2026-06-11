@@ -18,12 +18,12 @@ from pathlib import Path
 import numpy as np 
 import pandas as pd 
 import fastf1 
-from backend.config import CACHE_DIR
+from backend.config import CACHE_DIR, DATA_ROOT
 
 fastf1.Cache.enable_cache(CACHE_DIR)
 
 BASE_DIR = Path(__file__).resolve().parents[2]
-SEASONS_DIR = os.path.join(BASE_DIR, "data", "processed", "seasons")
+SEASONS_DIR = os.path.join(DATA_ROOT, "processed", "seasons")
 
 # Columns present in your season CSVs that are UNKNOWN for a future race.
 # Created and left NaN so the shape matches your historical rows exactly.
@@ -103,7 +103,7 @@ def build_future_race_frame(n: int = 2) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True)
 
 
-def save_future_races(df, path=os.path.join(BASE_DIR, "data", "processed", "future_races.csv")):
+def save_future_races(df, path=os.path.join(DATA_ROOT, "processed", "future_races.csv")):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     df.to_csv(path, index=False)
     print(f"Saved {len(df)} rows ({df['CircuitName'].nunique()} races) -> {path}")

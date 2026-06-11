@@ -1,5 +1,6 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "");
+const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || (import.meta.env.PROD ? "/api" : "");
 const STATIC_BASE = "/predictions";
+let bootstrapPredictions = null;
 
 async function fetchJson(url, options) {
   const res = await fetch(url, options);
@@ -9,6 +10,8 @@ async function fetchJson(url, options) {
 
 async function fetchPrediction(path, { optional = false } = {}) {
   let apiError = null;
+  const bootstrapped = readBootstrapPrediction(path);
+  if (bootstrapped !== undefined) return bootstrapped;
 
   if (API_BASE) {
     try {
@@ -48,6 +51,28 @@ export async function getPerformance() {
 
 export function hasLiveBackend() {
   return Boolean(API_BASE);
+}
+
+function readBootstrapPrediction(path) {
+  if (!bootstrapPredictions) return undefined;
+  if (path === "/races.json") return bootstrapPredictions.racesIndex || [];
+  if (path === "/future/index.json") return bootstrapPredictions.futureIndex || [];
+  if (path === "/performance.json") return bootstrapPredictions.performance;
+
+  const historical = path.match(/^\/(\d{4})\/round_(\d+)\.json$/);
+  if (historical) return bootstrapPredictions.races?.[`${historical[1]}/round_${historical[2]}`];
+
+  const future = path.match(/^\/future\/(\d{4})_round_(\d+)\.json$/);
+  if (future) return bootstrapPredictions.future?.[`${future[1]}_round_${future[2]}`];
+
+  return undefined;
+}
+
+export async function bootstrapLiveModel() {
+  if (!API_BASE) return null;
+  const payload = await fetchJson(`${API_BASE}/bootstrap`, { method: "POST" });
+  bootstrapPredictions = payload.predictions;
+  return payload.refresh;
 }
 
 export async function startLocalModelRefresh() {
