@@ -633,7 +633,7 @@ nav {
 
 .bfoot {
   display: flex;
-  gap: 26px;
+  gap: 22px;
   padding: 14px 18px;
   background: var(--panel-2);
   border-top: 1px solid var(--line-soft);
@@ -656,7 +656,7 @@ nav {
 .bfoot .stat .v {
   font-family: 'Saira Condensed';
   font-weight: 700;
-  font-size: 22px;
+  font-size: 21px;
   margin-top: 2px;
 }
 
