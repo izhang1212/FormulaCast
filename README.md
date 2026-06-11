@@ -10,9 +10,15 @@
 
 **Set Up Instructions:** Use update_season.py to download all seasons from 2018-2026. Once done, run main and test.
 
-## Frontend API Integration
+## Deployment
 
-For Vercel deployment, source season CSVs live in Supabase Storage:
+FormulaCast is deployed as a split app:
+
+- Vercel hosts the Vite frontend.
+- Render hosts the FastAPI backend and runs the model refresh.
+- Supabase Storage stores season CSV inputs.
+
+Source season CSVs live in Supabase Storage:
 
 ```text
 formulacast-data/processed/seasons/season_2018.csv
@@ -20,15 +26,22 @@ formulacast-data/processed/seasons/season_2018.csv
 formulacast-data/processed/seasons/season_2026.csv
 ```
 
-Add these Vercel environment variables:
+Add these Render environment variables. Do not put the Supabase service role key in the frontend:
 
 ```bash
 SUPABASE_URL=...
 SUPABASE_SERVICE_ROLE_KEY=...
 SUPABASE_BUCKET=formulacast-data
+FRONTEND_ORIGIN=https://your-vercel-domain.vercel.app
 ```
 
-The deployed frontend calls `POST /api/bootstrap`, which downloads the Supabase season files, rebuilds the local feature matrix in temporary runtime storage, trains the model, runs predictions, and returns the generated JSON directly to the app.
+Add this Vercel environment variable:
+
+```bash
+VITE_API_BASE_URL=https://your-render-service.onrender.com/api
+```
+
+The deployed frontend calls `POST /api/bootstrap` on the Render backend, which downloads the Supabase season files, rebuilds the local feature matrix in temporary runtime storage, trains the model, runs predictions, and returns the generated JSON directly to the app.
 
 Historical prediction JSON is exported to `backend/data/predictions`:
 
@@ -76,7 +89,7 @@ By default, the frontend reads `frontend/public/predictions`. To use this backen
 VITE_API_BASE_URL=http://127.0.0.1:8000/api
 ```
 
-In local development, if `VITE_API_BASE_URL` is not set, there is no `/api` request and no backend server is required for the static snapshot. In a production Vercel build, the frontend uses the same-domain `/api` routes automatically.
+In local development, if `VITE_API_BASE_URL` is not set, there is no `/api` request and no backend server is required for the static snapshot. In production, set `VITE_API_BASE_URL` to the Render API URL.
 
 Useful API endpoints:
 

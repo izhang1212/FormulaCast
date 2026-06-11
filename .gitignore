@@ -1,3 +1,21 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+api/.env
+api/.env.*
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+*.pem
+*.key
+*.p8
+
+# Deployment state
+.vercel/
+
 # Backend
 api/__pycache__/
 backend/__pycache__/
@@ -7,7 +25,6 @@ backend/outputs/
 backend/f1_cache/
 backend/*.joblib
 backend/venv/
-backend/.env
 
 # Frontend logs
 frontend/logs/
