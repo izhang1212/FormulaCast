@@ -27,7 +27,7 @@ FormulaCast is deployed as a split app:
   - Pit stop time variance and botched stop probability
   - Lap-by-lap overtake attempts based on pace differentials
 
-### Example Output:
+### Backend Example Output:
 ```
 --- Monte Carlo Results ---
 Simulations: 10000
