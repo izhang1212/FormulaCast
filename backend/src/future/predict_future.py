@@ -118,18 +118,24 @@ def _summary_from_probs(drivers: list, position_probs: np.ndarray) -> pd.DataFra
 
 
 def predict_future_race(model, race_rows: pd.DataFrame, track_calibration,
-                        n_sims: int = NUM_SIMULATIONS, seed: int = 0,
+                        n_sims: int = NUM_SIMULATIONS, seed: "int | None" = 0,
                         total_laps: int = DEFAULT_TOTAL_LAPS) -> dict:
     """Predict one upcoming race. Returns dict with keys:
-    summary, position_probs, mode, circuit. No printing."""
+    summary, position_probs, mode, circuit, total_laps. No printing.
+
+    seed=None  → fresh random simulation every call (live per-user predictions).
+    seed=int   → reproducible results (offline JSON exports).
+    """
     mode = detect_grid_mode(race_rows)
     circuit = race_rows["CircuitName"].iloc[0]
     track_params = get_track_params(track_calibration, circuit)
 
     if mode == "official":
         graded = _predict_with_grid(model, fill_official_grid(race_rows))
+        # Propagate seed so live calls get a fresh MC each time
         results = run_simulation(_sim_frame(graded),
-                                 total_laps, n_sims=n_sims, track_params=track_params)
+                                 total_laps, n_sims=n_sims,
+                                 track_params=track_params, seed=seed)
         results["mode"] = mode
         results["circuit"] = circuit
         return results
@@ -145,8 +151,12 @@ def predict_future_race(model, race_rows: pd.DataFrame, track_calibration,
 
     for _ in range(n_batches):
         graded = _predict_with_grid(model, sample_grid(race_rows, rng))
+        # Derive a fresh MC seed from the main rng when seed is None (live),
+        # or a deterministic sub-seed for reproducible offline exports.
+        mc_seed = None if seed is None else int(rng.integers(2**32))
         res = run_simulation(_sim_frame(graded),
-                             total_laps, n_sims=per_call, track_params=track_params)
+                             total_laps, n_sims=per_call,
+                             track_params=track_params, seed=mc_seed)
         probs = res["position_probs"]
         for d in drivers:
             accum[idx[d]] += probs.loc[d].to_numpy() * per_call
@@ -156,6 +166,7 @@ def predict_future_race(model, race_rows: pd.DataFrame, track_calibration,
         "summary": _summary_from_probs(drivers, position_probs),
         "position_probs": pd.DataFrame(position_probs, index=drivers,
                                        columns=[f"P{i}" for i in range(n_drivers + 1)]),
-        "mode": mode,
-        "circuit": circuit,
+        "mode":       mode,
+        "circuit":    circuit,
+        "total_laps": total_laps,
     }

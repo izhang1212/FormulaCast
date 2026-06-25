@@ -1,0 +1,120 @@
+name: Update Race Predictions
+
+# Runs every Monday at 04:00 UTC — well after Sunday's race ends.
+# Can also be triggered manually from GitHub → Actions → "Run workflow".
+on:
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+env:
+  PYTHONPATH: ${{ github.workspace }}
+  FORMULACAST_DATA_ROOT: ${{ github.workspace }}/backend/data
+  FORMULACAST_CACHE_DIR: ${{ github.workspace }}/backend/f1_cache
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write   # needed to push the updated prediction JSONs
+
+    steps:
+      # ── Setup ──────────────────────────────────────────────────────────────
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      # Cache the FastF1 HTTP cache so completed sessions don't get re-downloaded
+      # on every run — only the new round is fetched from the F1 CDN.
+      - name: Restore FastF1 cache
+        uses: actions/cache@v4
+        with:
+          path: backend/f1_cache
+          key: fastf1-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: fastf1-${{ runner.os }}-
+
+      # ── Data: pull from F1 and sync with Supabase ──────────────────────────
+
+      - name: Download season CSVs from Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+        run: |
+          python - <<'EOF'
+          from backend.cloud_storage import hydrate_seasons_from_supabase
+          files = hydrate_seasons_from_supabase()
+          if files:
+              print(f"Downloaded {len(files)} file(s): {files}")
+          else:
+              print("Supabase not configured or bucket empty — skipping download.")
+          EOF
+
+      - name: Pull latest race data from FastF1
+        run: |
+          python - <<'EOF'
+          from backend.update_seasons import next_season_to_pull, pull_one_season
+          year = next_season_to_pull()
+          if year is None:
+              print("All seasons up to date — nothing to pull.")
+          else:
+              print(f"Pulling season {year} ...")
+              ok = pull_one_season(year)
+              if ok:
+                  print(f"Season {year} saved successfully.")
+              else:
+                  print(f"Season {year} hit a rate limit — will retry on next run.")
+          EOF
+
+      - name: Upload updated season CSVs to Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+        run: |
+          python - <<'EOF'
+          from backend.cloud_storage import push_seasons_to_supabase
+          files = push_seasons_to_supabase()
+          if files:
+              print(f"Uploaded {len(files)} file(s) to Supabase.")
+          else:
+              print("Supabase not configured — skipping upload.")
+          EOF
+
+      # ── Predictions: rebuild and sync to frontend ───────────────────────────
+
+      - name: Rebuild all prediction JSONs
+        run: python -m backend.exporters all
+
+      - name: Sync predictions to frontend/public
+        run: |
+          mkdir -p frontend/public/predictions
+          cp -rf "$FORMULACAST_DATA_ROOT/predictions/." frontend/public/predictions/
+          echo "Synced $(find frontend/public/predictions -name '*.json' | wc -l) JSON files."
+
+      # ── Publish: commit the updated JSONs so Vercel redeploys ──────────────
+
+      - name: Commit and push updated predictions
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend/public/predictions/
+          if git diff --staged --quiet; then
+            echo "Predictions unchanged — no commit needed."
+          else
+            CHANGED=$(git diff --staged --name-only | wc -l)
+            git commit -m "chore: auto-update predictions ($CHANGED files changed)"
+            git push
+            echo "Pushed — Vercel will redeploy automatically."
+          fi

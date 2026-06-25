@@ -1,11 +1,10 @@
-# Core Monte Carlo simulation engine (optimized).
+# Core Monte Carlo simulation engine.
 
 import numpy as np
 import pandas as pd
 import json
 from pathlib import Path
 from backend.config import NUM_SIMULATIONS, MC_RANDOM_SEED, POINTS_SYSTEM
-from backend.src.models.race_events import SafetyCarModel
 
 
 DEFAULT_TRACK_PARAMS = {
@@ -26,154 +25,179 @@ def compute_dnf_rates(df, track_params, weights=(0.4, 0.35, 0.25), lo=0.01, hi=0
     """
     base = track_params["first_lap_incident_rate"] + track_params["mechanical_dnf_rate"]
     n = len(df)
-    drv = df["DNFRate_Last10"].to_numpy() if "DNFRate_Last10" in df.columns else np.full(n, base)
+    drv  = df["DNFRate_Last10"].to_numpy()  if "DNFRate_Last10"  in df.columns else np.full(n, base)
     team = df["TeamDNFRate_Last10"].to_numpy() if "TeamDNFRate_Last10" in df.columns else np.full(n, base)
-    drv = np.nan_to_num(drv, nan=base)
+    drv  = np.nan_to_num(drv,  nan=base)
     team = np.nan_to_num(team, nan=base)
     rate = weights[0] * base + weights[1] * drv + weights[2] * team
     return np.clip(rate, lo, hi)
 
 
-def simulate_single_race(drivers: np.ndarray, predicted_positions: np.ndarray,
-                         total_laps: int, rng: np.random.Generator,
-                         track_params: dict = None,
-                         dnf_rates: np.ndarray = None) -> tuple:
-    """Simulate one race. Returns (positions, dnf_flags)."""
-    n = len(drivers)
-
-    if track_params is None:
-        track_params = DEFAULT_TRACK_PARAMS
-
-    # Split each driver's total DNF rate into first-lap vs mid-race in the same
-    # proportion the track baseline implies.
-    base_total = track_params["first_lap_incident_rate"] + track_params["mechanical_dnf_rate"]
-    fl_frac = (track_params["first_lap_incident_rate"] / base_total) if base_total > 0 else 0.5
-    if dnf_rates is None:
-        dnf_rates = np.full(n, base_total)
-
-    sc_model = SafetyCarModel(base_prob_per_lap=track_params["sc_prob_per_lap"])
-
-    pace = predicted_positions.copy() + rng.normal(0, 0.5, n)
-    order = np.argsort(pace).tolist()
-
-    # Per-driver DNFs: one draw against that driver's rate, then decide whether it's
-    # a first-lap incident or a mid-race mechanical failure.
-    dnf_lap = {}
-    for i in range(n):
-        if rng.random() < dnf_rates[i]:
-            dnf_lap[i] = 1 if rng.random() < fl_frac else int(rng.integers(2, total_laps))
-
-    # Pit stop pace adjustment
-    for i in range(n):
-        if i not in dnf_lap:
-            stops = rng.integers(1, max(2, int(track_params["avg_pit_stops"] + 1)))
-            pit_delta = sum(rng.normal(0, 0.4) for _ in range(stops))
-            pace[i] += pit_delta * 0.3
-
-    # Safety cars
-    sc_set = set(sc_model.simulate(total_laps, rng))
-
-    # Lap-by-lap overtaking
-    active = set(range(n)) - set(dnf_lap.keys())
-
-    for lap in range(1, total_laps + 1):
-        for driver_idx, dlap in dnf_lap.items():
-            if dlap == lap:
-                active.discard(driver_idx)
-
-        if lap in sc_set or lap % 3 != 0:
-            continue
-
-        running = [d for d in order if d in active]
-        for j in range(len(running) - 1):
-            ahead = running[j]
-            behind = running[j + 1]
-            delta = pace[ahead] - pace[behind]
-
-            if delta > 0.3 and rng.random() < min(0.15 * (delta / 0.3), 0.8):
-                idx_a = order.index(ahead)
-                idx_b = order.index(behind)
-                order[idx_a], order[idx_b] = order[idx_b], order[idx_a]
-
-    # Final positions
-    running = [d for d in order if d in active]
-    dnf_list = [d for d in order if d not in active]
-
-    positions = np.zeros(n, dtype=int)
-    for pos, driver_idx in enumerate(running, 1):
-        positions[driver_idx] = pos
-    for pos, driver_idx in enumerate(dnf_list, len(running) + 1):
-        positions[driver_idx] = pos
-
-    # Track DNF explicitly — a back-of-grid finish is NOT the same as a retirement.
-    dnf_flags = np.zeros(n, dtype=bool)
-    for i in dnf_lap:
-        dnf_flags[i] = True
-
-    return positions, dnf_flags
-
-
 def run_simulation(predicted_order: pd.DataFrame, total_laps: int,
-                   n_sims: int = NUM_SIMULATIONS, track_params: dict = None) -> dict:
+                   n_sims: int = NUM_SIMULATIONS, track_params: dict = None,
+                   seed: "int | None" = MC_RANDOM_SEED) -> dict:
+    """Run n_sims Monte Carlo races and return aggregate probabilities.
+
+    seed=None  → fresh random results every call (live per-user predictions).
+    seed=int   → reproducible results (offline JSON exports).
+    """
     if track_params is None:
         track_params = DEFAULT_TRACK_PARAMS
 
-    rng = np.random.default_rng(MC_RANDOM_SEED)
+    rng = np.random.default_rng(seed)
 
-    drivers = predicted_order["Driver"].values
+    drivers             = predicted_order["Driver"].values
     predicted_positions = predicted_order["PredictedPosition"].values.astype(float)
-    n_drivers = len(drivers)
+    n                   = len(drivers)
+    dnf_rates           = compute_dnf_rates(predicted_order, track_params)
 
-    # Per-driver reliability (uses DNFRate_Last10 / TeamDNFRate_Last10 if present).
-    dnf_rates = compute_dnf_rates(predicted_order, track_params)
+    base_total = (track_params["first_lap_incident_rate"] +
+                  track_params["mechanical_dnf_rate"])
+    fl_frac    = (track_params["first_lap_incident_rate"] / base_total
+                  if base_total > 0 else 0.5)
+    max_stops  = max(2, int(track_params["avg_pit_stops"] + 1))
+    sc_base    = track_params["sc_prob_per_lap"]
+    max_pairs  = max(1, n - 1)
+    ot_laps    = max(1, total_laps // 3)
 
-    all_positions = np.zeros((n_sims, n_drivers), dtype=int)
-    all_dnf = np.zeros((n_sims, n_drivers), dtype=bool)
+    # ── Pre-generate ALL random numbers at once ───────────────────────────────
+    # Replaces 20 000 RNG object creations and thousands of individual small calls
+    # with a handful of fast bulk numpy operations.
+    pace_noise     = rng.normal(0, 0.5, (n_sims, n))
+    dnf_rolls      = rng.random((n_sims, n))
+    fl_rolls       = rng.random((n_sims, n))
+    dnf_lap_mid    = rng.integers(2, max(3, total_laps), (n_sims, n))
+    pit_counts     = rng.integers(1, max_stops, (n_sims, n))
+    pit_noise      = rng.normal(0, 0.4, (n_sims, n, max_stops))
+    sc_rolls       = rng.random((n_sims, total_laps))
+    overtake_rolls = rng.random((n_sims, ot_laps, max_pairs))
 
-    for i in range(n_sims):
-        sim_rng = np.random.default_rng(rng.integers(0, 2**32))
-        positions, dnf_flags = simulate_single_race(
-            drivers, predicted_positions, total_laps, sim_rng, track_params, dnf_rates
-        )
-        all_positions[i] = positions
-        all_dnf[i] = dnf_flags
+    # SC probability per lap (first 3 laps are 4× riskier)
+    sc_probs = np.full(total_laps, sc_base)
+    sc_probs[:min(3, total_laps)] *= 4.0
 
-    # Build summary stats
-    position_counts = np.zeros((n_drivers, n_drivers + 1))
-    for i in range(n_drivers):
-        for pos in range(1, n_drivers + 1):
-            position_counts[i][pos] = np.sum(all_positions[:, i] == pos)
+    # Vectorised DNF decisions (avoids per-sim per-driver Python conditionals)
+    driver_dnfs    = dnf_rolls < dnf_rates[np.newaxis, :]         # (n_sims, n) bool
+    dnf_lap_matrix = np.where(fl_rolls < fl_frac, 1, dnf_lap_mid) # (n_sims, n) int
 
+    # ── Simulation loop ───────────────────────────────────────────────────────
+    all_positions = np.zeros((n_sims, n), dtype=np.int32)
+    all_dnf_flags = np.zeros((n_sims, n), dtype=bool)
+
+    for sim_i in range(n_sims):
+        pace = predicted_positions + pace_noise[sim_i]
+
+        # Per-sim DNF lap map
+        dnf_lap = {}
+        for d in range(n):
+            if driver_dnfs[sim_i, d]:
+                dnf_lap[d] = int(dnf_lap_matrix[sim_i, d])
+
+        # Pit-stop pace adjustments
+        for d in range(n):
+            if d not in dnf_lap:
+                stops = int(pit_counts[sim_i, d])
+                for s in range(stops):
+                    pace[d] += pit_noise[sim_i, d, s] * 0.3
+
+        # Safety car laps — cooldown makes this inherently sequential,
+        # but random draws are already pre-generated above.
+        sc_set   = set()
+        cooldown = 0
+        for lap_i in range(total_laps):
+            if cooldown > 0:
+                cooldown -= 1
+                continue
+            if sc_rolls[sim_i, lap_i] < sc_probs[lap_i]:
+                sc_set.add(lap_i + 1)
+                cooldown = 4
+
+        # Initial order by pace; rank[] gives O(1) position lookups so
+        # overtake swaps no longer require the O(n) order.index() scan.
+        order = np.argsort(pace).tolist()
+        rank  = [0] * n
+        for pos_i, d in enumerate(order):
+            rank[d] = pos_i
+
+        active  = set(range(n))
+        ot_lp_i = 0
+
+        for lap in range(1, total_laps + 1):
+            for d, dlap in dnf_lap.items():
+                if dlap == lap:
+                    active.discard(d)
+
+            if lap in sc_set or lap % 3 != 0:
+                continue
+
+            running  = [d for d in order if d in active]
+            roll_row = overtake_rolls[sim_i, min(ot_lp_i, ot_laps - 1)]
+
+            for j in range(len(running) - 1):
+                ahead  = running[j]
+                behind = running[j + 1]
+                delta  = pace[ahead] - pace[behind]
+                if delta > 0.3 and roll_row[min(j, max_pairs - 1)] < min(0.15 * delta / 0.3, 0.8):
+                    ra, rb = rank[ahead], rank[behind]
+                    order[ra], order[rb] = order[rb], order[ra]
+                    rank[ahead], rank[behind] = rb, ra
+
+            ot_lp_i += 1
+
+        # Assign final positions
+        running_final = [d for d in order if d in active]
+        dnf_list      = [d for d in order if d not in active]
+        positions = np.empty(n, dtype=np.int32)
+        for pos_i, d in enumerate(running_final, 1):
+            positions[d] = pos_i
+        for pos_i, d in enumerate(dnf_list, len(running_final) + 1):
+            positions[d] = pos_i
+
+        all_positions[sim_i] = positions
+        for d in dnf_lap:
+            all_dnf_flags[sim_i, d] = True
+
+    # ── Vectorised aggregation ─────────────────────────────────────────────────
+    # np.bincount replaces the O(n²) Python double-loop
+    position_counts = np.zeros((n, n + 1))
+    for i in range(n):
+        position_counts[i] = np.bincount(all_positions[:, i], minlength=n + 1)
     position_probs = position_counts / n_sims
+
+    # Array-index lookup replaces 20 000 × n dict.get() calls
+    points_arr = np.zeros(n + 1)
+    for pos, pts in POINTS_SYSTEM.items():
+        if pos <= n:
+            points_arr[pos] = pts
 
     summary = []
     for i, driver in enumerate(drivers):
-        positions = all_positions[:, i]
-        expected_points = np.mean([POINTS_SYSTEM.get(p, 0) for p in positions])
-
+        col = all_positions[:, i]
+        pr  = position_probs[i]
         summary.append({
-            "Driver": driver,
-            "ExpectedPosition": round(np.mean(positions), 1),
-            "MedianPosition": int(np.median(positions)),
-            "StdPosition": round(np.std(positions), 2),
-            "WinProb": round(position_probs[i][1] * 100, 1),
-            "PodiumProb": round(sum(position_probs[i][1:4]) * 100, 1),
-            "PointsProb": round(sum(position_probs[i][1:11]) * 100, 1),
-            "DNFProb": round(all_dnf[:, i].mean() * 100, 1),   # now a real retirement rate
-            "ExpectedPoints": round(expected_points, 2),
-            "P5_Position": int(np.percentile(positions, 5)),
-            "P95_Position": int(np.percentile(positions, 95)),
+            "Driver":           driver,
+            "ExpectedPosition": round(float(np.mean(col)), 1),
+            "MedianPosition":   int(np.median(col)),
+            "StdPosition":      round(float(np.std(col)), 2),
+            "WinProb":          round(pr[1] * 100, 1),
+            "PodiumProb":       round(float(np.sum(pr[1:4])) * 100, 1),
+            "PointsProb":       round(float(np.sum(pr[1:11])) * 100, 1),
+            "DNFProb":          round(float(all_dnf_flags[:, i].mean()) * 100, 1),
+            "ExpectedPoints":   round(float(np.mean(points_arr[col])), 2),
+            "P5_Position":      int(np.percentile(col, 5)),
+            "P95_Position":     int(np.percentile(col, 95)),
         })
 
     summary_df = pd.DataFrame(summary).sort_values("ExpectedPosition")
     position_probs_df = pd.DataFrame(
         position_probs, index=drivers,
-        columns=[f"P{i}" for i in range(n_drivers + 1)]
+        columns=[f"P{i}" for i in range(n + 1)]
     )
 
     return {
-        "summary": summary_df,
+        "summary":        summary_df,
         "position_probs": position_probs_df,
+        "total_laps":     total_laps,
     }
 
 
@@ -181,8 +205,6 @@ def run_simulation(predicted_order: pd.DataFrame, total_laps: int,
 # JSON export helpers — bridge between the offline pipeline and the frontend.
 # ---------------------------------------------------------------------------
 
-# Map raw DataFrame columns -> clean JSON keys.
-# (% and [] are legal Python labels but awkward to use in JS, so rename them here.)
 COLUMN_MAP = {
     "Driver":           "driver",
     "ExpectedPosition": "expected_position",

@@ -5,7 +5,7 @@ import Predict from "./views/Predict";
 import Replay from "./views/Replay";
 import About from "./views/About";
 import Performance from "./views/Performance";
-import { bootstrapLiveModel, getRefreshStatus, hasLiveBackend, startLocalModelRefresh } from "./api";
+import { getLivePredictions, getRefreshStatus, hasLiveBackend, startLocalModelRefresh } from "./api";
 
 export default function App() {
   const [view, setView] = useState("home");
@@ -15,17 +15,28 @@ export default function App() {
   useEffect(() => {
     if (!hasLiveBackend()) return undefined;
 
+    if (import.meta.env.PROD) {
+      // In production: call the lean live endpoint directly — no polling needed.
+      // It runs a fresh Monte Carlo simulation and returns immediately.
+      // If it fails (cold start timeout etc.), the page silently falls back
+      // to the pre-built static prediction JSON served from the CDN.
+      let active = true;
+      getLivePredictions()
+        .then(() => { if (active) setDataVersion(v => v + 1); })
+        .catch(() => {});
+      return () => { active = false; };
+    }
+
+    // Local dev: trigger a full rebuild and poll for completion.
     let active = true;
     let pollId = null;
 
     const applyStatus = status => {
       if (!active || !status) return;
-
       if (status.state === "succeeded" && status.finished_at !== completedRun.current) {
         completedRun.current = status.finished_at;
         setDataVersion(version => version + 1);
       }
-
       if (status.state === "succeeded" || status.state === "failed") {
         clearInterval(pollId);
       }
@@ -34,14 +45,10 @@ export default function App() {
     const poll = () => {
       getRefreshStatus()
         .then(applyStatus)
-        .catch(() => {
-          clearInterval(pollId);
-        });
+        .catch(() => { clearInterval(pollId); });
     };
 
-    const startRefresh = import.meta.env.PROD ? bootstrapLiveModel : startLocalModelRefresh;
-
-    startRefresh()
+    startLocalModelRefresh()
       .then(applyStatus)
       .catch(() => poll());
 

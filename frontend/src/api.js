@@ -75,6 +75,17 @@ export async function bootstrapLiveModel() {
   return payload.refresh;
 }
 
+export async function getLivePredictions() {
+  if (!API_BASE) return null;
+  const data = await fetchJson(`${API_BASE}/predict/live`);
+  // Merge fresh MC results into the bootstrap cache so Predict.jsx
+  // reads live simulations instead of the pre-built static JSON.
+  if (!bootstrapPredictions) bootstrapPredictions = {};
+  bootstrapPredictions.futureIndex = data.futureIndex;
+  bootstrapPredictions.future = data.future;
+  return data;
+}
+
 export async function startLocalModelRefresh() {
   if (!API_BASE) return null;
   return fetchJson(`${API_BASE}/refresh/local`, { method: "POST" });

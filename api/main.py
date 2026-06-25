@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
+import numpy as np
+import pandas as pd
 from fastapi import BackgroundTasks, Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -274,6 +276,110 @@ def _collect_prediction_payloads() -> dict:
         payload["performance"] = _read_json(performance_path)
 
     return payload
+
+
+# ---------------------------------------------------------------------------
+# Live prediction endpoint — runs a fresh Monte Carlo per user visit.
+# The RF model and track calibration are cached at module level so warm
+# serverless invocations skip re-training and go straight to the MC.
+# ---------------------------------------------------------------------------
+
+_live_cache: dict | None = None
+
+
+def _to_python(val):
+    """Convert numpy/pandas scalars to JSON-safe Python types."""
+    if isinstance(val, (np.integer,)):
+        return int(val)
+    if isinstance(val, (np.floating,)):
+        return float(val)
+    if isinstance(val, pd.Timestamp):
+        return val.isoformat()
+    try:
+        if pd.isna(val):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return val
+
+
+@app.get("/api/predict/live")
+def predict_live():
+    """Return fresh Monte Carlo predictions for every upcoming race.
+
+    On a warm invocation the RF model is already in _live_cache, so only
+    the MC simulation (seed=None → unique each call) needs to run, which
+    takes a fraction of a second per race with the optimised engine.
+    """
+    global _live_cache
+
+    if _live_cache is None:
+        from backend.exporters import train_model_on_all_history
+        from backend.main import run_pipeline, run_features, DATA_OUTPUT_PATH
+        from backend.src.models.track_calibration import calibrate_track_events
+
+        history  = run_pipeline()
+        features = run_features(history)
+        model    = train_model_on_all_history(features)
+        raw_df   = pd.read_csv(DATA_OUTPUT_PATH)
+        track_cal = calibrate_track_events(raw_df)
+        _live_cache = {"model": model, "track_calibration": track_cal}
+
+    model     = _live_cache["model"]
+    track_cal = _live_cache["track_calibration"]
+
+    from backend.main import ensure_future_file
+    from backend.src.future.predict_future import (
+        load_future_races, list_future_races, get_race_rows, predict_future_race,
+    )
+    from backend.src.models.monte_carlo import COLUMN_MAP
+
+    future_path = ensure_future_file()
+    future      = load_future_races(future_path)
+    races       = list_future_races(future).reset_index(drop=True)
+
+    future_index: list[dict] = []
+    future_dict:  dict       = {}
+
+    for _, race in races.iterrows():
+        year     = int(race["Year"])
+        round_no = int(race["RoundNumber"])
+        name     = str(race["CircuitName"])
+        rows     = get_race_rows(future, year, round_no)
+
+        # seed=None → unique simulation for every visitor
+        results = predict_future_race(model, rows, track_cal, seed=None)
+        summary = results["summary"].rename(columns=COLUMN_MAP)
+
+        race_date  = _to_python(rows["RaceDateUtc"].iloc[0])       if "RaceDateUtc"       in rows.columns else None
+        quali_date = _to_python(rows["QualifyingDateUtc"].iloc[0]) if "QualifyingDateUtc" in rows.columns else None
+
+        payload = {
+            "year":            year,
+            "round":           round_no,
+            "name":            name,
+            "laps":            int(results.get("total_laps", 57)),
+            "mode":            str(results.get("mode", "sampled")),
+            "race_date":       race_date,
+            "qualifying_date": quali_date,
+            "drivers": [
+                {k: _to_python(v) for k, v in row.items()}
+                for row in summary.to_dict(orient="records")
+            ],
+        }
+
+        key = f"{year}_round_{round_no}"
+        future_dict[key] = payload
+        future_index.append({
+            "year":            year,
+            "round":           round_no,
+            "name":            name,
+            "mode":            payload["mode"],
+            "race_date":       race_date,
+            "qualifying_date": quali_date,
+        })
+
+    return {"futureIndex": future_index, "future": future_dict}
 
 
 @app.get("/api/health")

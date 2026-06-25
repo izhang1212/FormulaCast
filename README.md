@@ -16,10 +16,10 @@ FormulaCast is deployed as a split app:
 
 - Vercel hosts the Vite frontend.
 - Render hosts the FastAPI backend and runs the model refresh.
-- Supabase Storage stores season CSV inputs.
+- Supabase Storage stores season/race CSV inputs.
 
 
-## Strategies Implemented:
+## Prediction Strategies Implemented:
 - **Random Forest Regression:**  Walk-forward validated model predicting finishing positions from 20+ engineered features, with exponentially weighted rolling averages to capture recent form
 - **Monte Carlo Simulation** — 10,000 race iterations with stochastic event modeling:
   - Safety car probability per lap (with first-lap multiplier and cooldown)
