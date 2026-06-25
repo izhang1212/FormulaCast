@@ -94,6 +94,7 @@ def pull_one_season(year: int) -> bool:
 
     season_df = pd.concat(season_races, ignore_index=True)
     season_path = os.path.join(SEASONS_DIR, f"season_{year}.csv")
+    os.makedirs(SEASONS_DIR, exist_ok=True)
     season_df.to_csv(season_path, index=False)   # overwrites — refreshes in-progress season
     print(f"Saved {year}: {season_df['RoundNumber'].nunique()} rounds, {len(season_df)} rows")
     return True
