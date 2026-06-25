@@ -1,22 +1,203 @@
 {
-  "generated_at": "2026-06-25T18:25:01.289276+00:00",
-  "test_season": null,
-  "test_seasons": [],
+  "generated_at": "2026-06-25T18:36:16.507093+00:00",
+  "test_season": "2019-2026",
+  "test_seasons": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
   "train_seasons": [
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
     2026
   ],
   "data": {
     "seasons": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025,
       2026
     ],
-    "feature_rows": 132,
+    "feature_rows": 3548,
     "completed_races": 0,
     "historical_driver_predictions": 0
   },
   "random_forest": {
-    "metrics": {},
-    "cards": [],
-    "feature_importance": []
+    "metrics": {
+      "MAE": 3.43,
+      "RMSE": 4.49,
+      "Within_3_Positions": 55.3,
+      "Podium_Accuracy": 66.0,
+      "Baseline_MAE (Grid Order)": 3.61,
+      "Improvement_Over_Baseline": 0.18
+    },
+    "cards": [
+      {
+        "key": "MAE",
+        "label": "Mean Abs Error",
+        "value": 3.43,
+        "unit": "pos",
+        "detail": "Average finishing-position miss across all walk-forward holdout seasons."
+      },
+      {
+        "key": "RMSE",
+        "label": "RMSE",
+        "value": 4.49,
+        "unit": "pos",
+        "detail": "Penalizes larger misses more heavily than MAE across all holdout seasons."
+      },
+      {
+        "key": "Within_3_Positions",
+        "label": "Within 3",
+        "value": 55.3,
+        "unit": "%",
+        "detail": "Share of all holdout predictions within three finishing positions."
+      },
+      {
+        "key": "Podium_Accuracy",
+        "label": "Podium Hit Rate",
+        "value": 66.0,
+        "unit": "%",
+        "detail": "Average overlap between predicted and real podium drivers."
+      },
+      {
+        "key": "Baseline_MAE (Grid Order)",
+        "label": "Grid Baseline",
+        "value": 3.61,
+        "unit": "pos",
+        "detail": "Error if each race simply followed qualifying order."
+      },
+      {
+        "key": "Improvement_Over_Baseline",
+        "label": "Avg Grid Gain",
+        "value": 0.18,
+        "unit": "pos",
+        "detail": "Average model improvement over the grid baseline."
+      }
+    ],
+    "feature_importance": [
+      {
+        "feature": "GridPosition",
+        "label": "Grid Position",
+        "group": "Qualifying",
+        "importance": 0.5984003885902254,
+        "percent": 59.84
+      },
+      {
+        "feature": "QualiGapPct",
+        "label": "Quali Gap PCT",
+        "group": "Qualifying",
+        "importance": 0.07562066146743274,
+        "percent": 7.56
+      },
+      {
+        "feature": "QualiGapToPole",
+        "label": "Quali Gap To Pole",
+        "group": "Qualifying",
+        "importance": 0.048443257629954974,
+        "percent": 4.84
+      },
+      {
+        "feature": "Team_EWM_Finish",
+        "label": "Team EWM Finish",
+        "group": "Team form",
+        "importance": 0.04311297106540428,
+        "percent": 4.31
+      },
+      {
+        "feature": "EWM_Points",
+        "label": "EWM Points",
+        "group": "Recent form",
+        "importance": 0.03498146813677953,
+        "percent": 3.5
+      },
+      {
+        "feature": "EWM_Finish",
+        "label": "EWM Finish",
+        "group": "Recent form",
+        "importance": 0.031142545943199363,
+        "percent": 3.11
+      },
+      {
+        "feature": "QualiGapToTeammate",
+        "label": "Quali Gap To Teammate",
+        "group": "Qualifying",
+        "importance": 0.030624524544639153,
+        "percent": 3.06
+      },
+      {
+        "feature": "TeamAvgFinish_Last5",
+        "label": "Team Average Finish Last5",
+        "group": "Team form",
+        "importance": 0.0238320047021393,
+        "percent": 2.38
+      },
+      {
+        "feature": "PointsMomentum_Last3",
+        "label": "Points Momentum Last3",
+        "group": "Model signal",
+        "importance": 0.01926420368644911,
+        "percent": 1.93
+      },
+      {
+        "feature": "FinishStd_Last5",
+        "label": "Finish Std Last5",
+        "group": "Model signal",
+        "importance": 0.017198029265012956,
+        "percent": 1.72
+      },
+      {
+        "feature": "EWM_PositionChange",
+        "label": "EWM Position Change",
+        "group": "Recent form",
+        "importance": 0.016792459763323293,
+        "percent": 1.68
+      },
+      {
+        "feature": "AvgVsTeammate_Last5",
+        "label": "Average Vs Teammate Last5",
+        "group": "Team form",
+        "importance": 0.013284659310079522,
+        "percent": 1.33
+      },
+      {
+        "feature": "AvgGridDelta_Last5",
+        "label": "Average Grid Delta Last5",
+        "group": "Qualifying",
+        "importance": 0.012664373482878669,
+        "percent": 1.27
+      },
+      {
+        "feature": "CareerRaces",
+        "label": "Career Races",
+        "group": "Model signal",
+        "importance": 0.010872688725767627,
+        "percent": 1.09
+      },
+      {
+        "feature": "BestFinish_Last5",
+        "label": "Best Finish Last5",
+        "group": "Model signal",
+        "importance": 0.008006376172158498,
+        "percent": 0.8
+      }
+    ]
   },
   "monte_carlo": {
     "accuracy": {
