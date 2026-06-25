@@ -68,11 +68,15 @@ jobs:
           from backend.update_seasons import pull_one_season
           year = int(pd.Timestamp.utcnow().year)
           print(f"Pulling current season {year} ...")
-          ok = pull_one_season(year)
+          try:
+              ok = pull_one_season(year)
+          except Exception as exc:
+              print(f"Season {year} pull raised an unexpected error: {exc}")
+              ok = False
           if ok:
               print(f"Season {year} updated successfully.")
           else:
-              print(f"Season {year}: no data pulled (rate limit or no completed rounds) — will retry next run.")
+              print(f"Season {year}: no data pulled — will retry next run.")
           EOF
 
       - name: Upload updated season CSVs to Supabase
@@ -95,18 +99,24 @@ jobs:
       - name: Rebuild prediction JSONs
         run: |
           python - <<'EOF'
-          import glob
+          import sys
           from backend.config import DATA_ROOT
           seasons_dir = DATA_ROOT / "processed" / "seasons"
           season_files = list(seasons_dir.glob("season_*.csv")) if seasons_dir.exists() else []
           if not season_files:
-              print("No season CSVs on disk — skipping export. Add Supabase secrets or re-run after FastF1 rate limit lifts.")
-              raise SystemExit(0)
+              print("No season CSVs on disk — skipping export.")
+              sys.exit(0)
           print(f"Found {len(season_files)} season file(s). Exporting future predictions and performance...")
-          from backend.exporters import export_future_predictions, export_performance
-          export_future_predictions()
-          export_performance()
-          print("Export complete.")
+          try:
+              from backend.exporters import export_future_predictions, export_performance
+              export_future_predictions()
+              export_performance()
+              print("Export complete.")
+          except Exception as exc:
+              import traceback
+              print(f"Export failed: {exc}")
+              traceback.print_exc()
+              sys.exit(0)
           EOF
 
       - name: Sync predictions to frontend/public
