@@ -164,9 +164,10 @@ export default function Home({ onNavigate }) {
             <div className="hero">
                 <div className="tag"><span className="dot" /> Random Forest + Monte Carlo · 2026 season</div>
                 <RaceLights />
-                <h1>Call the grid<br />before <span className="acc">lights out.</span></h1>
-                <p className="sub">FormulaCast runs every Grand Prix ten thousand times — modelling pace,
-                    chaos, and tire luck — to turn a race into a probability, not a guess.</p>
+                <h1>Call the grid<br />before <span className="grn">go.</span></h1>
+                <p className="sub">Use FormulaCast to predict who wins before the race starts, replay
+                    finished Grand Prix weekends against the real results, and see how sharp the
+                    model's calls have been.</p>
                 <div className="modes">
                     <div className="mode predict" onClick={() => onNavigate("predict")}>
                         <span className="stripe" /><span className="edge" />

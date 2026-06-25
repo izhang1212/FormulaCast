@@ -3,6 +3,7 @@
 :root {
   --red: #E10600;
   --yellow: #FFD200;
+  --green: #00C853;
   --ink: #0A0A0C;
   --panel: #15151E;
   --panel-2: #1C1C26;
@@ -211,6 +212,10 @@ nav {
 
 .hero h1 .acc {
   color: var(--red);
+}
+
+.hero h1 .grn {
+  color: var(--green);
 }
 
 .hero .sub {
