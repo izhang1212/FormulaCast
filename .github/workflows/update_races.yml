@@ -119,6 +119,26 @@ jobs:
               sys.exit(0)
           EOF
 
+      - name: Export new completed rounds to Replay
+        run: |
+          python - <<'EOF'
+          import sys
+          from backend.config import DATA_ROOT
+          seasons_dir = DATA_ROOT / "processed" / "seasons"
+          season_files = list(seasons_dir.glob("season_*.csv")) if seasons_dir.exists() else []
+          if len(season_files) < 2:
+              print(f"Only {len(season_files)} season CSV(s) on disk — need at least 2 to train. Skipping Replay export.")
+              sys.exit(0)
+          try:
+              from backend.exporters import export_current_season_historical
+              export_current_season_historical()
+          except Exception as exc:
+              import traceback
+              print(f"Current-season historical export failed: {exc}")
+              traceback.print_exc()
+              sys.exit(0)
+          EOF
+
       - name: Sync predictions to frontend/public
         run: |
           mkdir -p frontend/public/predictions

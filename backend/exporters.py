@@ -117,6 +117,83 @@ def export_historical_predictions():
     print(f"\nWrote {len(index)} races across seasons {years}.")
 
 
+def export_current_season_historical():
+    """Generate historical prediction JSONs for any new completed rounds in the current season.
+
+    Trains one model (all prior seasons → current year) and skips rounds that
+    already have a JSON on disk, so only the newly completed round(s) are simulated.
+    Fast enough to run in CI every week.
+    """
+    import json
+
+    current_year = pd.Timestamp.utcnow().year
+
+    df = run_pipeline()
+    df = run_features(df)
+    seasons = sorted(int(y) for y in df["Year"].unique())
+
+    if current_year not in seasons:
+        print(f"No {current_year} data available — skipping current-season historical export.")
+        return
+    if not any(s < current_year for s in seasons):
+        print(f"No prior seasons to train on for {current_year} — skipping.")
+        return
+
+    raw_df = pd.read_csv(DATA_OUTPUT_PATH)
+    track_calibration = calibrate_track_events(raw_df)
+
+    prior = [s for s in seasons if s < current_year]
+    print(f"Training model on {prior} → testing on {current_year}...")
+    model, test_df, metrics, importance = run_model(df, current_year)
+
+    year_dir = PREDICTIONS_DIR / str(current_year)
+    races = (
+        test_df.groupby(["RoundNumber", "CircuitName"])
+        .size()
+        .reset_index()
+        .sort_values("RoundNumber")
+    )
+
+    new_entries = []
+    for _, row in races.iterrows():
+        rnd = int(row["RoundNumber"])
+        circuit = row["CircuitName"]
+        out_path = year_dir / f"round_{rnd}.json"
+        if out_path.exists():
+            print(f"  {current_year} R{rnd}: {circuit} — already exists, skipping")
+            continue
+        race_data = test_df[test_df["RoundNumber"] == rnd].copy()
+        total_laps = (
+            int(race_data["TotalRaceLaps"].iloc[0])
+            if "TotalRaceLaps" in race_data.columns
+            else 57
+        )
+        track_params = get_track_params(track_calibration, circuit)
+        print(f"  {current_year} R{rnd}: {circuit} ({total_laps} laps)...", end=" ", flush=True)
+        results = run_simulation(race_data, total_laps, track_params=track_params)
+        export_race(results["summary"], current_year, rnd, circuit, total_laps, year_dir, actuals_df=race_data)
+        new_entries.append({"year": current_year, "round": rnd, "name": circuit})
+        print("done")
+
+    if not new_entries:
+        print(f"No new {current_year} rounds to export.")
+        return
+
+    races_path = PREDICTIONS_DIR / "races.json"
+    existing: list = []
+    if races_path.exists():
+        with open(races_path) as f:
+            existing = json.load(f)
+    existing_keys = {(e["year"], e["round"]) for e in existing}
+    for entry in new_entries:
+        if (entry["year"], entry["round"]) not in existing_keys:
+            existing.append(entry)
+    with open(races_path, "w") as f:
+        json.dump(existing, f, indent=2)
+
+    print(f"Exported {len(new_entries)} new round(s) and updated races.json.")
+
+
 def train_model_on_all_history(features: pd.DataFrame):
     train = features.dropna(subset=["FinishPosition", "GridPosition"]).copy()
     train["Residual"] = train["FinishPosition"] - train["GridPosition"]
