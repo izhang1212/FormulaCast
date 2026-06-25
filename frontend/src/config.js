@@ -133,11 +133,11 @@ export const ROSTERS = {
 };
 
 export const STEPS = [
-  {k:'01 · Ingest',t:'Data',d:'Every race weekend since 2018 is pulled from the FastF1 API — results, qualifying, lap times, weather, and free-practice pace. Each season is cached as its own file so the dataset grows race by race.'},
-  {k:'02 · Transform',t:'Feature Engineering',d:'Raw results become signals the model can learn from: rolling and exponentially-weighted form, team strength, grid-to-finish history, circuit experience and qualifying gaps — each computed only from a driver\u2019s prior races, never the future.'},
-  {k:'03 · Learn',t:'Random Forest',d:'A Random Forest learns how far each driver tends to move from their grid slot, predicting a residual — positions gained or lost. Added to the starting grid, that gives an expected finishing position. Trained on past seasons, tested walk-forward on the next.'},
-  {k:'04 · Anchor',t:'The Grid',d:'A finish prediction needs a start. After qualifying, the real penalty-adjusted grid is used. Before qualifying, FormulaCast samples a plausible grid from current form — so an upcoming race can be forecast days ahead.'},
-  {k:'05 · Simulate',t:'Monte Carlo',d:'The expected order is only the average case. The Monte Carlo engine runs the race ten thousand times, injecting safety cars, first-lap incidents, mechanical DNFs, pit-stop variance and lap-by-lap overtaking — with event rates calibrated per circuit.'},
+  {k:'01 · Ingest',t:'Data',d:'Every race weekend since 2018 is pulled from the FastF1 API, containing information like results, qualifying, lap times, and weather. Each season is cached as its own file so the dataset grows race by race.'},
+  {k:'02 · Transform',t:'Feature Engineering',d:'Raw results become signals the model can learn from: rolling and exponentially-weighted form, team strength, grid-to-finish history, circuit experience and qualifying gaps. Each is computed leakage-free, only using information available up to that point, never lookinginto the future.'},
+  {k:'03 · Learn',t:'Random Forest',d:'A Random Forest learns how far each driver tends to move from their grid slot, predicting a residual: positions gained or lost. Added to the starting grid, that gives an expected finishing position. Trained on past seasons, tested walk-forward on the next.'},
+  {k:'04 · Anchor',t:'The Grid',d:'A finish prediction needs a start. After qualifying, the real penalty-adjusted grid is used. Before qualifying, FormulaCast samples a plausible grid from current form, so an upcoming race can be forecast days ahead of the qualifying session.'},
+  {k:'05 · Simulate',t:'Monte Carlo',d:'The expected order is only the average case. The Monte Carlo engine runs the race ten thousand times, injecting stochastic events (safety cars, first-lap incidents, mechanical DNFs, pit-stop variance, lap-by-lap overtaking) with event rates calibrated per circuit.'},
   {k:'06 · Aggregate',t:'Probabilities',d:'Across ten thousand simulated races, the spread of where each driver lands becomes the output: win probability, podium and points odds, expected position, and the full finishing distribution.'},
 ];
 

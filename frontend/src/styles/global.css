@@ -212,11 +212,13 @@ nav {
 
 .hero h1 .acc {
   color: var(--red);
+  text-shadow: 0 0 18px rgba(225, 6, 0, 0.45), 0 0 40px rgba(225, 6, 0, 0.18);
 }
 
 .hero h1 .grn {
   color: var(--green);
 }
+
 
 .hero .sub {
   text-align: center;

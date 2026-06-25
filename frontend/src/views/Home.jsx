@@ -164,7 +164,7 @@ export default function Home({ onNavigate }) {
             <div className="hero">
                 <div className="tag"><span className="dot" /> Random Forest + Monte Carlo · 2026 season</div>
                 <RaceLights />
-                <h1>Call the grid<br />before <span className="grn">go.</span></h1>
+                <h1>Call the grid before<br />the <span className="acc">starting lights.</span></h1>
                 <p className="sub">Use FormulaCast to predict who wins before the race starts, replay
                     finished Grand Prix weekends against the real results, and see how sharp the
                     model's calls have been.</p>

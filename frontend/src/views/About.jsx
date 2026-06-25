@@ -20,7 +20,7 @@ export default function About() {
                 <span className="num">//</span><h2>How it works</h2><span className="note">data → forecast</span>
             </div>
             <p className="intro">FormulaCast turns historical race data into a probability for every driver.
-                Each stage feeds the next — a learned model produces a single expected order, then a simulator
+                Each round feeds the next: a learned model produces a single expected order, then a simulator
                 turns that order into the full range of ways a race can actually play out.</p>
             <div className="flow">
                 {STEPS.map((s, i) => (
