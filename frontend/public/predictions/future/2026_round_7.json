@@ -9,179 +9,179 @@
   "drivers": [
     {
       "driver": "ANT",
-      "expected_position": 3.0,
-      "win_pct": 44.4,
-      "podium_pct": 79.4,
-      "points_pct": 95.2,
-      "expected_points": 18.6
+      "expected_position": 2.5,
+      "win_pct": 46.0,
+      "podium_pct": 84.4,
+      "points_pct": 97.1,
+      "expected_points": 19.24
     },
     {
       "driver": "HAM",
-      "expected_position": 3.7,
-      "win_pct": 26.0,
-      "podium_pct": 61.1,
-      "points_pct": 94.7,
-      "expected_points": 16.14
+      "expected_position": 3.9,
+      "win_pct": 25.4,
+      "podium_pct": 63.2,
+      "points_pct": 91.0,
+      "expected_points": 15.86
     },
     {
       "driver": "RUS",
-      "expected_position": 4.9,
-      "win_pct": 10.8,
-      "podium_pct": 51.6,
+      "expected_position": 4.5,
+      "win_pct": 11.0,
+      "podium_pct": 54.6,
       "points_pct": 93.0,
-      "expected_points": 12.87
+      "expected_points": 13.3
     },
     {
       "driver": "LEC",
-      "expected_position": 5.4,
-      "win_pct": 5.9,
-      "podium_pct": 25.7,
-      "points_pct": 94.9,
-      "expected_points": 11.09
-    },
-    {
-      "driver": "PIA",
-      "expected_position": 5.7,
-      "win_pct": 6.2,
-      "podium_pct": 26.4,
-      "points_pct": 94.8,
-      "expected_points": 10.5
-    },
-    {
-      "driver": "NOR",
-      "expected_position": 6.4,
-      "win_pct": 6.2,
-      "podium_pct": 30.1,
-      "points_pct": 88.8,
-      "expected_points": 9.55
+      "expected_position": 5.8,
+      "win_pct": 5.5,
+      "podium_pct": 25.9,
+      "points_pct": 88.0,
+      "expected_points": 10.79
     },
     {
       "driver": "VER",
-      "expected_position": 6.7,
-      "win_pct": 0.5,
-      "podium_pct": 25.5,
-      "points_pct": 92.0,
-      "expected_points": 8.26
+      "expected_position": 7.3,
+      "win_pct": 1.1,
+      "podium_pct": 25.2,
+      "points_pct": 83.3,
+      "expected_points": 8.29
+    },
+    {
+      "driver": "PIA",
+      "expected_position": 8.0,
+      "win_pct": 5.3,
+      "podium_pct": 21.5,
+      "points_pct": 72.6,
+      "expected_points": 8.48
+    },
+    {
+      "driver": "NOR",
+      "expected_position": 8.4,
+      "win_pct": 5.6,
+      "podium_pct": 24.2,
+      "points_pct": 71.5,
+      "expected_points": 8.02
     },
     {
       "driver": "HAD",
-      "expected_position": 10.1,
+      "expected_position": 10.9,
       "win_pct": 0.0,
-      "podium_pct": 0.0,
-      "points_pct": 58.6,
-      "expected_points": 2.45
+      "podium_pct": 0.1,
+      "points_pct": 63.8,
+      "expected_points": 2.94
     },
     {
       "driver": "OCO",
-      "expected_position": 10.4,
+      "expected_position": 11.6,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 72.1,
-      "expected_points": 2.68
+      "points_pct": 56.0,
+      "expected_points": 2.86
     },
     {
       "driver": "LAW",
-      "expected_position": 11.6,
+      "expected_position": 12.3,
       "win_pct": 0.0,
-      "podium_pct": 0.1,
-      "points_pct": 36.7,
-      "expected_points": 1.5
+      "podium_pct": 0.4,
+      "points_pct": 44.8,
+      "expected_points": 1.85
     },
     {
       "driver": "GAS",
-      "expected_position": 12.1,
+      "expected_position": 12.7,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 35.8,
-      "expected_points": 1.43
+      "points_pct": 38.9,
+      "expected_points": 1.71
     },
     {
       "driver": "SAI",
       "expected_position": 13.4,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 30.1,
-      "expected_points": 1.35
+      "points_pct": 32.1,
+      "expected_points": 1.54
     },
     {
       "driver": "LIN",
-      "expected_position": 13.9,
+      "expected_position": 13.8,
       "win_pct": 0.0,
-      "podium_pct": 0.0,
-      "points_pct": 25.0,
-      "expected_points": 1.24
+      "podium_pct": 0.1,
+      "points_pct": 29.7,
+      "expected_points": 1.36
+    },
+    {
+      "driver": "BEA",
+      "expected_position": 14.0,
+      "win_pct": 0.0,
+      "podium_pct": 0.3,
+      "points_pct": 23.6,
+      "expected_points": 1.08
     },
     {
       "driver": "BOR",
       "expected_position": 14.0,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 27.2,
-      "expected_points": 0.95
-    },
-    {
-      "driver": "BEA",
-      "expected_position": 14.2,
-      "win_pct": 0.0,
-      "podium_pct": 0.1,
-      "points_pct": 14.5,
-      "expected_points": 1.0
+      "points_pct": 30.2,
+      "expected_points": 1.2
     },
     {
       "driver": "HUL",
-      "expected_position": 14.8,
+      "expected_position": 14.4,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 13.4,
-      "expected_points": 0.19
+      "points_pct": 26.4,
+      "expected_points": 0.65
     },
     {
       "driver": "COL",
-      "expected_position": 15.1,
+      "expected_position": 14.6,
       "win_pct": 0.0,
-      "podium_pct": 0.0,
-      "points_pct": 14.1,
-      "expected_points": 0.82
+      "podium_pct": 0.1,
+      "points_pct": 18.8,
+      "expected_points": 0.87
     },
     {
       "driver": "ALB",
-      "expected_position": 15.5,
+      "expected_position": 14.9,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 8.3,
-      "expected_points": 0.13
+      "points_pct": 16.6,
+      "expected_points": 0.4
     },
     {
       "driver": "PER",
-      "expected_position": 17.5,
+      "expected_position": 16.2,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 0.8,
-      "expected_points": 0.01
+      "points_pct": 6.5,
+      "expected_points": 0.12
     },
     {
       "driver": "ALO",
-      "expected_position": 17.5,
+      "expected_position": 16.2,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 8.9,
-      "expected_points": 0.23
+      "points_pct": 8.6,
+      "expected_points": 0.32
     },
     {
       "driver": "STR",
-      "expected_position": 17.7,
+      "expected_position": 16.3,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 1.0,
-      "expected_points": 0.01
+      "points_pct": 5.9,
+      "expected_points": 0.12
     },
     {
       "driver": "BOT",
-      "expected_position": 19.4,
+      "expected_position": 17.4,
       "win_pct": 0.0,
       "podium_pct": 0.0,
-      "points_pct": 0.0,
-      "expected_points": 0.0
+      "points_pct": 1.3,
+      "expected_points": 0.02
     }
   ]
 }
