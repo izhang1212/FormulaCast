@@ -37,6 +37,9 @@ function CarouselCard({ summary, race }) {
     const topDrivers = race?.drivers?.slice(0, 10) || [];
     const hasActuals = race?.drivers?.some(d => d.actual != null);
     const leader = topDrivers[0];
+    const actualWinner = hasActuals
+        ? race.drivers.find(d => d.actual === 1)
+        : null;
 
     return (
         <article className="carousel-card">
@@ -52,18 +55,34 @@ function CarouselCard({ summary, race }) {
                 <span className={`pill ${hasActuals ? "official" : "sampled"}`}>
                     {hasActuals ? "Finished" : race ? "Prediction" : "Loading"}
                 </span>
-                {leader && <strong>{leader.driver} {leader.win_pct.toFixed(1)}%</strong>}
+                {hasActuals
+                    ? actualWinner && <strong>{actualWinner.driver} won</strong>
+                    : leader && <strong>{leader.driver} {leader.win_pct.toFixed(1)}%</strong>
+                }
             </div>
             <div className="cc-drivers">
-                {topDrivers.length ? topDrivers.map((driver, index) => (
-                    <div className="cc-driver" key={driver.driver}>
-                        <span className="cc-pos">{index + 1}</span>
-                        <span className="tick" style={{ background: teamColor(summary.year, driver.driver) }} />
-                        <span className="abbr">{driver.driver}</span>
-                        <span className="full">{NAME[driver.driver] || ""}</span>
-                        <span className="pct">{driver.win_pct.toFixed(1)}%</span>
-                    </div>
-                )) : (
+                {topDrivers.length ? (
+                    <>
+                        {hasActuals && (
+                            <div className="cc-col-header">
+                                <span>Predicted</span>
+                                <span>Actual</span>
+                            </div>
+                        )}
+                        {topDrivers.map((driver, index) => (
+                            <div className="cc-driver" key={driver.driver}>
+                                <span className="cc-pos">{index + 1}</span>
+                                <span className="tick" style={{ background: teamColor(summary.year, driver.driver) }} />
+                                <span className="abbr">{driver.driver}</span>
+                                <span className="full">{NAME[driver.driver] || ""}</span>
+                                {hasActuals
+                                    ? <span className="act">{driver.actual ?? "—"}</span>
+                                    : <span className="pct">{driver.win_pct.toFixed(1)}%</span>
+                                }
+                            </div>
+                        ))}
+                    </>
+                ) : (
                     <div className="cc-loading">Loading race forecast...</div>
                 )}
             </div>
