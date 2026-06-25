@@ -996,6 +996,11 @@ nav {
   border-bottom: 1px solid var(--line-soft);
 }
 
+.carousel-card .cc-top > div {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .carousel-card .cc-round {
   font-family: 'JetBrains Mono';
   font-size: 11px;
@@ -1012,6 +1017,9 @@ nav {
   line-height: .98;
   margin-top: 5px;
   letter-spacing: .01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .carousel-card .cc-loc {
@@ -1020,6 +1028,9 @@ nav {
   font-size: 12px;
   font-family: 'JetBrains Mono';
   letter-spacing: .03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .carousel-card .cc-circuit {
