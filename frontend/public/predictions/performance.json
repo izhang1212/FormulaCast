@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-25T18:36:16.507093+00:00",
+  "generated_at": "2026-06-25T19:14:48.286449+00:00",
   "test_season": "2019-2026",
   "test_seasons": [
     2019,
@@ -35,8 +35,8 @@
       2026
     ],
     "feature_rows": 3548,
-    "completed_races": 0,
-    "historical_driver_predictions": 0
+    "completed_races": 159,
+    "historical_driver_predictions": 3165
   },
   "random_forest": {
     "metrics": {
@@ -103,7 +103,7 @@
         "feature": "QualiGapPct",
         "label": "Quali Gap PCT",
         "group": "Qualifying",
-        "importance": 0.07562066146743274,
+        "importance": 0.07562066146743275,
         "percent": 7.56
       },
       {
@@ -124,35 +124,35 @@
         "feature": "EWM_Points",
         "label": "EWM Points",
         "group": "Recent form",
-        "importance": 0.03498146813677953,
+        "importance": 0.03498146813677952,
         "percent": 3.5
       },
       {
         "feature": "EWM_Finish",
         "label": "EWM Finish",
         "group": "Recent form",
-        "importance": 0.031142545943199363,
+        "importance": 0.031142545943199366,
         "percent": 3.11
       },
       {
         "feature": "QualiGapToTeammate",
         "label": "Quali Gap To Teammate",
         "group": "Qualifying",
-        "importance": 0.030624524544639153,
+        "importance": 0.030624524544639146,
         "percent": 3.06
       },
       {
         "feature": "TeamAvgFinish_Last5",
         "label": "Team Average Finish Last5",
         "group": "Team form",
-        "importance": 0.0238320047021393,
+        "importance": 0.023832004702139295,
         "percent": 2.38
       },
       {
         "feature": "PointsMomentum_Last3",
         "label": "Points Momentum Last3",
         "group": "Model signal",
-        "importance": 0.01926420368644911,
+        "importance": 0.019264203686449106,
         "percent": 1.93
       },
       {
@@ -180,14 +180,14 @@
         "feature": "AvgGridDelta_Last5",
         "label": "Average Grid Delta Last5",
         "group": "Qualifying",
-        "importance": 0.012664373482878669,
+        "importance": 0.012664373482878667,
         "percent": 1.27
       },
       {
         "feature": "CareerRaces",
         "label": "Career Races",
         "group": "Model signal",
-        "importance": 0.010872688725767627,
+        "importance": 0.010872688725767623,
         "percent": 1.09
       },
       {
@@ -201,32 +201,1319 @@
   },
   "monte_carlo": {
     "accuracy": {
-      "race_count": 0,
-      "driver_count": 0,
-      "overall_mae": null,
-      "top_10_mae": null,
-      "median_error": null,
-      "within_1": null,
-      "within_3": null,
-      "within_5": null,
-      "best_race": null,
-      "worst_race": null,
-      "race_errors": []
+      "race_count": 159,
+      "driver_count": 3165,
+      "overall_mae": 3.33,
+      "top_10_mae": 2.83,
+      "median_error": 2.4,
+      "within_1": 23.5,
+      "within_3": 60.2,
+      "within_5": 80.3,
+      "best_race": {
+        "year": 2024,
+        "round": 10,
+        "name": "Spanish Grand Prix",
+        "mae": 1.53,
+        "top_10_mae": 1.09,
+        "drivers": 20
+      },
+      "worst_race": {
+        "year": 2021,
+        "round": 11,
+        "name": "Hungarian Grand Prix",
+        "mae": 6.92,
+        "top_10_mae": 6.39,
+        "drivers": 20
+      },
+      "race_errors": [
+        {
+          "year": 2024,
+          "round": 10,
+          "name": "Spanish Grand Prix",
+          "mae": 1.53,
+          "top_10_mae": 1.09,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 3,
+          "name": "Japanese Grand Prix",
+          "mae": 1.55,
+          "top_10_mae": 0.94,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 13,
+          "name": "Hungarian Grand Prix",
+          "mae": 1.68,
+          "top_10_mae": 1.81,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 4,
+          "name": "Azerbaijan Grand Prix",
+          "mae": 1.69,
+          "top_10_mae": 1.28,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 7,
+          "name": "Emilia Romagna Grand Prix",
+          "mae": 1.91,
+          "top_10_mae": 1.43,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 4,
+          "name": "Japanese Grand Prix",
+          "mae": 1.93,
+          "top_10_mae": 1.79,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 5,
+          "name": "Miami Grand Prix",
+          "mae": 1.97,
+          "top_10_mae": 1.96,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 17,
+          "name": "Abu Dhabi Grand Prix",
+          "mae": 1.98,
+          "top_10_mae": 1.76,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 18,
+          "name": "Singapore Grand Prix",
+          "mae": 1.98,
+          "top_10_mae": 1.56,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 6,
+          "name": "Spanish Grand Prix",
+          "mae": 1.99,
+          "top_10_mae": 1.84,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 4,
+          "name": "Spanish Grand Prix",
+          "mae": 1.99,
+          "top_10_mae": 1.52,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 14,
+          "name": "Italian Grand Prix",
+          "mae": 1.99,
+          "top_10_mae": 1.44,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 3,
+          "name": "Portuguese Grand Prix",
+          "mae": 2.03,
+          "top_10_mae": 1.63,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 15,
+          "name": "Dutch Grand Prix",
+          "mae": 2.04,
+          "top_10_mae": 1.77,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 16,
+          "name": "Italian Grand Prix",
+          "mae": 2.06,
+          "top_10_mae": 1.84,
+          "drivers": 19
+        },
+        {
+          "year": 2025,
+          "round": 18,
+          "name": "Singapore Grand Prix",
+          "mae": 2.13,
+          "top_10_mae": 1.95,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 1,
+          "name": "Bahrain Grand Prix",
+          "mae": 2.14,
+          "top_10_mae": 1.66,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 7,
+          "name": "Belgian Grand Prix",
+          "mae": 2.16,
+          "top_10_mae": 1.69,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 14,
+          "name": "Hungarian Grand Prix",
+          "mae": 2.16,
+          "top_10_mae": 2.2,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 6,
+          "name": "Miami Grand Prix",
+          "mae": 2.17,
+          "top_10_mae": 1.91,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 22,
+          "name": "Abu Dhabi Grand Prix",
+          "mae": 2.18,
+          "top_10_mae": 1.75,
+          "drivers": 20
+        },
+        {
+          "year": 2026,
+          "round": 3,
+          "name": "Japanese Grand Prix",
+          "mae": 2.23,
+          "top_10_mae": 2.28,
+          "drivers": 22
+        },
+        {
+          "year": 2022,
+          "round": 20,
+          "name": "Mexico City Grand Prix",
+          "mae": 2.26,
+          "top_10_mae": 1.59,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 15,
+          "name": "Dutch Grand Prix",
+          "mae": 2.29,
+          "top_10_mae": 1.84,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 5,
+          "name": "Saudi Arabian Grand Prix",
+          "mae": 2.33,
+          "top_10_mae": 1.94,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 8,
+          "name": "Monaco Grand Prix",
+          "mae": 2.39,
+          "top_10_mae": 1.85,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 1,
+          "name": "Bahrain Grand Prix",
+          "mae": 2.41,
+          "top_10_mae": 1.36,
+          "drivers": 17
+        },
+        {
+          "year": 2024,
+          "round": 14,
+          "name": "Belgian Grand Prix",
+          "mae": 2.41,
+          "top_10_mae": 2.22,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 7,
+          "name": "Monaco Grand Prix",
+          "mae": 2.42,
+          "top_10_mae": 1.72,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 8,
+          "name": "French Grand Prix",
+          "mae": 2.44,
+          "top_10_mae": 1.76,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 13,
+          "name": "Belgian Grand Prix",
+          "mae": 2.44,
+          "top_10_mae": 1.83,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 8,
+          "name": "Styrian Grand Prix",
+          "mae": 2.49,
+          "top_10_mae": 1.71,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 2,
+          "name": "Saudi Arabian Grand Prix",
+          "mae": 2.51,
+          "top_10_mae": 1.76,
+          "drivers": 19
+        },
+        {
+          "year": 2023,
+          "round": 7,
+          "name": "Spanish Grand Prix",
+          "mae": 2.52,
+          "top_10_mae": 2.3,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 5,
+          "name": "Chinese Grand Prix",
+          "mae": 2.52,
+          "top_10_mae": 2.03,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 18,
+          "name": "Mexican Grand Prix",
+          "mae": 2.54,
+          "top_10_mae": 2.31,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 16,
+          "name": "Japanese Grand Prix",
+          "mae": 2.55,
+          "top_10_mae": 1.72,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 19,
+          "name": "United States Grand Prix",
+          "mae": 2.56,
+          "top_10_mae": 2.09,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 5,
+          "name": "70th Anniversary Grand Prix",
+          "mae": 2.57,
+          "top_10_mae": 2.62,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 11,
+          "name": "Hungarian Grand Prix",
+          "mae": 2.58,
+          "top_10_mae": 2.39,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 4,
+          "name": "Bahrain Grand Prix",
+          "mae": 2.62,
+          "top_10_mae": 2.51,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 9,
+          "name": "Austrian Grand Prix",
+          "mae": 2.63,
+          "top_10_mae": 2.33,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 5,
+          "name": "Spanish Grand Prix",
+          "mae": 2.65,
+          "top_10_mae": 2.15,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 6,
+          "name": "Monaco Grand Prix",
+          "mae": 2.66,
+          "top_10_mae": 2.08,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 6,
+          "name": "Miami Grand Prix",
+          "mae": 2.67,
+          "top_10_mae": 2.21,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 16,
+          "name": "Italian Grand Prix",
+          "mae": 2.67,
+          "top_10_mae": 2.19,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 12,
+          "name": "Hungarian Grand Prix",
+          "mae": 2.7,
+          "top_10_mae": 2.3,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 17,
+          "name": "United States Grand Prix",
+          "mae": 2.7,
+          "top_10_mae": 2.29,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 17,
+          "name": "Azerbaijan Grand Prix",
+          "mae": 2.7,
+          "top_10_mae": 1.85,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 16,
+          "name": "Turkish Grand Prix",
+          "mae": 2.72,
+          "top_10_mae": 1.77,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 9,
+          "name": "Austrian Grand Prix",
+          "mae": 2.73,
+          "top_10_mae": 2.59,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 6,
+          "name": "Monaco Grand Prix",
+          "mae": 2.73,
+          "top_10_mae": 1.87,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 2,
+          "name": "Saudi Arabian Grand Prix",
+          "mae": 2.75,
+          "top_10_mae": 2.29,
+          "drivers": 19
+        },
+        {
+          "year": 2023,
+          "round": 2,
+          "name": "Saudi Arabian Grand Prix",
+          "mae": 2.75,
+          "top_10_mae": 1.9,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 24,
+          "name": "Abu Dhabi Grand Prix",
+          "mae": 2.75,
+          "top_10_mae": 2.86,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 21,
+          "name": "Abu Dhabi Grand Prix",
+          "mae": 2.76,
+          "top_10_mae": 2.7,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 22,
+          "name": "Las Vegas Grand Prix",
+          "mae": 2.77,
+          "top_10_mae": 1.96,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 7,
+          "name": "Emilia Romagna Grand Prix",
+          "mae": 2.77,
+          "top_10_mae": 2.83,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 8,
+          "name": "Monaco Grand Prix",
+          "mae": 2.78,
+          "top_10_mae": 1.49,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 15,
+          "name": "Singapore Grand Prix",
+          "mae": 2.86,
+          "top_10_mae": 2.07,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 12,
+          "name": "Portuguese Grand Prix",
+          "mae": 2.89,
+          "top_10_mae": 2.39,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 13,
+          "name": "Dutch Grand Prix",
+          "mae": 2.89,
+          "top_10_mae": 2.3,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 21,
+          "name": "Saudi Arabian Grand Prix",
+          "mae": 2.91,
+          "top_10_mae": 2.57,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 12,
+          "name": "Belgian Grand Prix",
+          "mae": 2.91,
+          "top_10_mae": 2.36,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 3,
+          "name": "Chinese Grand Prix",
+          "mae": 2.93,
+          "top_10_mae": 3.36,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 19,
+          "name": "S\u00e3o Paulo Grand Prix",
+          "mae": 2.94,
+          "top_10_mae": 2.98,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 18,
+          "name": "Japanese Grand Prix",
+          "mae": 2.94,
+          "top_10_mae": 2.37,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 22,
+          "name": "Abu Dhabi Grand Prix",
+          "mae": 2.98,
+          "top_10_mae": 2.78,
+          "drivers": 19
+        },
+        {
+          "year": 2024,
+          "round": 20,
+          "name": "Mexico City Grand Prix",
+          "mae": 2.99,
+          "top_10_mae": 2.08,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 22,
+          "name": "Abu Dhabi Grand Prix",
+          "mae": 3.02,
+          "top_10_mae": 1.92,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 12,
+          "name": "French Grand Prix",
+          "mae": 3.03,
+          "top_10_mae": 2.7,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 23,
+          "name": "Qatar Grand Prix",
+          "mae": 3.03,
+          "top_10_mae": 2.02,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 18,
+          "name": "Mexico City Grand Prix",
+          "mae": 3.05,
+          "top_10_mae": 2.33,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 12,
+          "name": "Belgian Grand Prix",
+          "mae": 3.07,
+          "top_10_mae": 2.38,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 11,
+          "name": "Austrian Grand Prix",
+          "mae": 3.09,
+          "top_10_mae": 2.59,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 15,
+          "name": "Russian Grand Prix",
+          "mae": 3.1,
+          "top_10_mae": 3.73,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 13,
+          "name": "Hungarian Grand Prix",
+          "mae": 3.1,
+          "top_10_mae": 3.41,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 24,
+          "name": "Abu Dhabi Grand Prix",
+          "mae": 3.1,
+          "top_10_mae": 2.81,
+          "drivers": 19
+        },
+        {
+          "year": 2023,
+          "round": 10,
+          "name": "British Grand Prix",
+          "mae": 3.14,
+          "top_10_mae": 3.03,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 1,
+          "name": "Australian Grand Prix",
+          "mae": 3.16,
+          "top_10_mae": 1.39,
+          "drivers": 14
+        },
+        {
+          "year": 2020,
+          "round": 15,
+          "name": "Bahrain Grand Prix",
+          "mae": 3.16,
+          "top_10_mae": 2.86,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 20,
+          "name": "Mexico City Grand Prix",
+          "mae": 3.16,
+          "top_10_mae": 3.04,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 19,
+          "name": "United States Grand Prix",
+          "mae": 3.17,
+          "top_10_mae": 3.34,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 9,
+          "name": "Spanish Grand Prix",
+          "mae": 3.19,
+          "top_10_mae": 3.0,
+          "drivers": 19
+        },
+        {
+          "year": 2025,
+          "round": 10,
+          "name": "Canadian Grand Prix",
+          "mae": 3.2,
+          "top_10_mae": 2.64,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 11,
+          "name": "Austrian Grand Prix",
+          "mae": 3.22,
+          "top_10_mae": 3.2,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 20,
+          "name": "Qatar Grand Prix",
+          "mae": 3.27,
+          "top_10_mae": 3.49,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 8,
+          "name": "Canadian Grand Prix",
+          "mae": 3.27,
+          "top_10_mae": 2.87,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 7,
+          "name": "French Grand Prix",
+          "mae": 3.28,
+          "top_10_mae": 2.82,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 23,
+          "name": "Qatar Grand Prix",
+          "mae": 3.28,
+          "top_10_mae": 3.49,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 21,
+          "name": "S\u00e3o Paulo Grand Prix",
+          "mae": 3.3,
+          "top_10_mae": 2.37,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 3,
+          "name": "Hungarian Grand Prix",
+          "mae": 3.35,
+          "top_10_mae": 3.17,
+          "drivers": 20
+        },
+        {
+          "year": 2026,
+          "round": 4,
+          "name": "Miami Grand Prix",
+          "mae": 3.36,
+          "top_10_mae": 3.07,
+          "drivers": 22
+        },
+        {
+          "year": 2023,
+          "round": 19,
+          "name": "Mexico City Grand Prix",
+          "mae": 3.38,
+          "top_10_mae": 2.62,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 21,
+          "name": "S\u00e3o Paulo Grand Prix",
+          "mae": 3.38,
+          "top_10_mae": 3.52,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 12,
+          "name": "British Grand Prix",
+          "mae": 3.41,
+          "top_10_mae": 2.57,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 10,
+          "name": "British Grand Prix",
+          "mae": 3.42,
+          "top_10_mae": 2.84,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 4,
+          "name": "British Grand Prix",
+          "mae": 3.42,
+          "top_10_mae": 2.77,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 11,
+          "name": "Austrian Grand Prix",
+          "mae": 3.43,
+          "top_10_mae": 2.91,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 17,
+          "name": "Singapore Grand Prix",
+          "mae": 3.44,
+          "top_10_mae": 3.43,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 10,
+          "name": "Russian Grand Prix",
+          "mae": 3.53,
+          "top_10_mae": 2.25,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 7,
+          "name": "Canadian Grand Prix",
+          "mae": 3.56,
+          "top_10_mae": 2.66,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 2,
+          "name": "Emilia Romagna Grand Prix",
+          "mae": 3.58,
+          "top_10_mae": 3.05,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 13,
+          "name": "Dutch Grand Prix",
+          "mae": 3.59,
+          "top_10_mae": 2.65,
+          "drivers": 19
+        },
+        {
+          "year": 2025,
+          "round": 1,
+          "name": "Australian Grand Prix",
+          "mae": 3.59,
+          "top_10_mae": 3.67,
+          "drivers": 17
+        },
+        {
+          "year": 2022,
+          "round": 6,
+          "name": "Spanish Grand Prix",
+          "mae": 3.62,
+          "top_10_mae": 3.0,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 19,
+          "name": "United States Grand Prix",
+          "mae": 3.65,
+          "top_10_mae": 3.19,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 2,
+          "name": "Bahrain Grand Prix",
+          "mae": 3.68,
+          "top_10_mae": 3.08,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 15,
+          "name": "Singapore Grand Prix",
+          "mae": 3.68,
+          "top_10_mae": 2.52,
+          "drivers": 19
+        },
+        {
+          "year": 2019,
+          "round": 16,
+          "name": "Russian Grand Prix",
+          "mae": 3.69,
+          "top_10_mae": 3.01,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 17,
+          "name": "Azerbaijan Grand Prix",
+          "mae": 3.69,
+          "top_10_mae": 2.39,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 5,
+          "name": "Miami Grand Prix",
+          "mae": 3.71,
+          "top_10_mae": 3.04,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 17,
+          "name": "Qatar Grand Prix",
+          "mae": 3.72,
+          "top_10_mae": 3.24,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 5,
+          "name": "Monaco Grand Prix",
+          "mae": 3.81,
+          "top_10_mae": 2.84,
+          "drivers": 20
+        },
+        {
+          "year": 2026,
+          "round": 7,
+          "name": "Barcelona Grand Prix",
+          "mae": 3.81,
+          "top_10_mae": 3.23,
+          "drivers": 22
+        },
+        {
+          "year": 2019,
+          "round": 9,
+          "name": "Austrian Grand Prix",
+          "mae": 3.86,
+          "top_10_mae": 2.89,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 3,
+          "name": "Australian Grand Prix",
+          "mae": 3.95,
+          "top_10_mae": 2.82,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 8,
+          "name": "Azerbaijan Grand Prix",
+          "mae": 3.98,
+          "top_10_mae": 2.8,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 9,
+          "name": "Canadian Grand Prix",
+          "mae": 4.0,
+          "top_10_mae": 3.98,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 3,
+          "name": "Australian Grand Prix",
+          "mae": 4.04,
+          "top_10_mae": 3.13,
+          "drivers": 19
+        },
+        {
+          "year": 2022,
+          "round": 1,
+          "name": "Bahrain Grand Prix",
+          "mae": 4.07,
+          "top_10_mae": 2.92,
+          "drivers": 19
+        },
+        {
+          "year": 2023,
+          "round": 1,
+          "name": "Bahrain Grand Prix",
+          "mae": 4.07,
+          "top_10_mae": 2.86,
+          "drivers": 18
+        },
+        {
+          "year": 2023,
+          "round": 20,
+          "name": "S\u00e3o Paulo Grand Prix",
+          "mae": 4.07,
+          "top_10_mae": 3.38,
+          "drivers": 20
+        },
+        {
+          "year": 2026,
+          "round": 2,
+          "name": "Chinese Grand Prix",
+          "mae": 4.12,
+          "top_10_mae": 3.34,
+          "drivers": 22
+        },
+        {
+          "year": 2025,
+          "round": 12,
+          "name": "British Grand Prix",
+          "mae": 4.13,
+          "top_10_mae": 4.23,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 14,
+          "name": "Belgian Grand Prix",
+          "mae": 4.14,
+          "top_10_mae": 3.56,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 2,
+          "name": "Chinese Grand Prix",
+          "mae": 4.15,
+          "top_10_mae": 3.11,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 2,
+          "name": "Styrian Grand Prix",
+          "mae": 4.16,
+          "top_10_mae": 3.41,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 10,
+          "name": "British Grand Prix",
+          "mae": 4.16,
+          "top_10_mae": 2.97,
+          "drivers": 20
+        },
+        {
+          "year": 2024,
+          "round": 9,
+          "name": "Canadian Grand Prix",
+          "mae": 4.17,
+          "top_10_mae": 2.91,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 1,
+          "name": "Austrian Grand Prix",
+          "mae": 4.21,
+          "top_10_mae": 3.28,
+          "drivers": 19
+        },
+        {
+          "year": 2019,
+          "round": 17,
+          "name": "Japanese Grand Prix",
+          "mae": 4.22,
+          "top_10_mae": 4.23,
+          "drivers": 20
+        },
+        {
+          "year": 2026,
+          "round": 1,
+          "name": "Australian Grand Prix",
+          "mae": 4.23,
+          "top_10_mae": 2.91,
+          "drivers": 21
+        },
+        {
+          "year": 2023,
+          "round": 21,
+          "name": "Las Vegas Grand Prix",
+          "mae": 4.25,
+          "top_10_mae": 4.3,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 8,
+          "name": "Italian Grand Prix",
+          "mae": 4.35,
+          "top_10_mae": 4.23,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 9,
+          "name": "Tuscan Grand Prix",
+          "mae": 4.35,
+          "top_10_mae": 3.0,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 19,
+          "name": "United States Grand Prix",
+          "mae": 4.48,
+          "top_10_mae": 3.94,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 10,
+          "name": "British Grand Prix",
+          "mae": 4.5,
+          "top_10_mae": 4.02,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 13,
+          "name": "Emilia Romagna Grand Prix",
+          "mae": 4.56,
+          "top_10_mae": 3.83,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 6,
+          "name": "Azerbaijan Grand Prix",
+          "mae": 4.64,
+          "top_10_mae": 3.64,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 16,
+          "name": "Italian Grand Prix",
+          "mae": 4.65,
+          "top_10_mae": 3.49,
+          "drivers": 19
+        },
+        {
+          "year": 2022,
+          "round": 21,
+          "name": "S\u00e3o Paulo Grand Prix",
+          "mae": 4.68,
+          "top_10_mae": 4.45,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 22,
+          "name": "Las Vegas Grand Prix",
+          "mae": 4.68,
+          "top_10_mae": 3.95,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 14,
+          "name": "Italian Grand Prix",
+          "mae": 4.71,
+          "top_10_mae": 3.86,
+          "drivers": 20
+        },
+        {
+          "year": 2026,
+          "round": 5,
+          "name": "Canadian Grand Prix",
+          "mae": 4.85,
+          "top_10_mae": 4.43,
+          "drivers": 22
+        },
+        {
+          "year": 2020,
+          "round": 16,
+          "name": "Sakhir Grand Prix",
+          "mae": 4.89,
+          "top_10_mae": 4.77,
+          "drivers": 18
+        },
+        {
+          "year": 2020,
+          "round": 14,
+          "name": "Turkish Grand Prix",
+          "mae": 5.08,
+          "top_10_mae": 5.54,
+          "drivers": 20
+        },
+        {
+          "year": 2022,
+          "round": 4,
+          "name": "Emilia Romagna Grand Prix",
+          "mae": 5.13,
+          "top_10_mae": 4.21,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 18,
+          "name": "United States Grand Prix",
+          "mae": 5.17,
+          "top_10_mae": 4.24,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 4,
+          "name": "Azerbaijan Grand Prix",
+          "mae": 5.21,
+          "top_10_mae": 4.5,
+          "drivers": 20
+        },
+        {
+          "year": 2023,
+          "round": 3,
+          "name": "Australian Grand Prix",
+          "mae": 5.3,
+          "top_10_mae": 4.56,
+          "drivers": 20
+        },
+        {
+          "year": 2026,
+          "round": 6,
+          "name": "Monaco Grand Prix",
+          "mae": 5.3,
+          "top_10_mae": 5.18,
+          "drivers": 22
+        },
+        {
+          "year": 2019,
+          "round": 13,
+          "name": "Belgian Grand Prix",
+          "mae": 5.38,
+          "top_10_mae": 5.13,
+          "drivers": 20
+        },
+        {
+          "year": 2020,
+          "round": 11,
+          "name": "Eifel Grand Prix",
+          "mae": 5.48,
+          "top_10_mae": 4.37,
+          "drivers": 20
+        },
+        {
+          "year": 2025,
+          "round": 15,
+          "name": "Dutch Grand Prix",
+          "mae": 5.54,
+          "top_10_mae": 5.04,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 14,
+          "name": "Italian Grand Prix",
+          "mae": 5.74,
+          "top_10_mae": 4.47,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 20,
+          "name": "Brazilian Grand Prix",
+          "mae": 5.96,
+          "top_10_mae": 5.97,
+          "drivers": 20
+        },
+        {
+          "year": 2019,
+          "round": 11,
+          "name": "German Grand Prix",
+          "mae": 6.79,
+          "top_10_mae": 7.01,
+          "drivers": 20
+        },
+        {
+          "year": 2021,
+          "round": 11,
+          "name": "Hungarian Grand Prix",
+          "mae": 6.92,
+          "top_10_mae": 6.39,
+          "drivers": 20
+        }
+      ]
     },
     "bands": [
       {
         "label": "Within 1",
-        "value": null,
+        "value": 23.5,
         "unit": "%"
       },
       {
         "label": "Within 3",
-        "value": null,
+        "value": 60.2,
         "unit": "%"
       },
       {
         "label": "Within 5",
-        "value": null,
+        "value": 80.3,
         "unit": "%"
       }
     ]

@@ -119,6 +119,12 @@ jobs:
               sys.exit(0)
           EOF
 
+      - name: Seed historical round JSONs into data dir
+        run: |
+          mkdir -p "$FORMULACAST_DATA_ROOT/predictions"
+          cp -rn frontend/public/predictions/. "$FORMULACAST_DATA_ROOT/predictions/"
+          echo "Seeded $(find "$FORMULACAST_DATA_ROOT/predictions" -name 'round_*.json' | wc -l) historical round JSON(s)."
+
       - name: Export new completed rounds to Replay
         run: |
           python - <<'EOF'
