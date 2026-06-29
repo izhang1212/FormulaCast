@@ -1,3 +1,4 @@
+import io
 import os
 from pathlib import Path
 
@@ -5,6 +6,7 @@ from backend.config import DATA_ROOT
 
 
 SEASON_PREFIX = "processed/seasons"
+LIVE_STATE_REMOTE = "processed/live_state.joblib"
 
 
 def supabase_is_configured() -> bool:
@@ -85,3 +87,50 @@ def push_seasons_to_supabase(source_dir: str | Path | None = None) -> list[str]:
         print(f"  ↑ {csv_file.name}")
 
     return uploaded
+
+
+def push_live_state(state: dict) -> bool:
+    """Serialize and upload the live prediction state (RF model + feature rows) to Supabase."""
+    if not supabase_is_configured():
+        print("Supabase not configured — live state not uploaded.")
+        return False
+
+    import joblib
+    from supabase import create_client
+
+    buf = io.BytesIO()
+    joblib.dump(state, buf, compress=3)
+    content = buf.getvalue()
+
+    supabase = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
+    storage = supabase.storage.from_(os.environ["SUPABASE_BUCKET"])
+
+    try:
+        storage.remove([LIVE_STATE_REMOTE])
+    except Exception:
+        pass
+
+    storage.upload(LIVE_STATE_REMOTE, content)
+    print(f"  ↑ live_state.joblib ({len(content) / 1024 / 1024:.1f} MB)")
+    return True
+
+
+def pull_live_state() -> "dict | None":
+    """Download and deserialize the live prediction state from Supabase."""
+    if not supabase_is_configured():
+        return None
+
+    import joblib
+    from supabase import create_client
+
+    supabase = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
+    storage = supabase.storage.from_(os.environ["SUPABASE_BUCKET"])
+
+    try:
+        content = storage.download(LIVE_STATE_REMOTE)
+        state = joblib.load(io.BytesIO(content))
+        print(f"  ↓ live_state.joblib ({len(content) / 1024 / 1024:.1f} MB)")
+        return state
+    except Exception as exc:
+        print(f"Could not pull live state from Supabase: {exc}")
+        return None

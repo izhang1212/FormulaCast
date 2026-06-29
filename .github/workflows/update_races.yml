@@ -145,6 +145,30 @@ jobs:
               sys.exit(0)
           EOF
 
+      - name: Build and upload live prediction state
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+        run: |
+          python - <<'EOF'
+          import sys
+          from backend.config import DATA_ROOT
+          seasons_dir = DATA_ROOT / "processed" / "seasons"
+          season_files = list(seasons_dir.glob("season_*.csv")) if seasons_dir.exists() else []
+          if not season_files:
+              print("No season CSVs — skipping live state export.")
+              sys.exit(0)
+          try:
+              from backend.exporters import export_live_state
+              export_live_state()
+          except Exception as exc:
+              import traceback
+              print(f"Live state export failed: {exc}")
+              traceback.print_exc()
+              sys.exit(0)
+          EOF
+
       - name: Sync predictions to frontend/public
         run: |
           mkdir -p frontend/public/predictions

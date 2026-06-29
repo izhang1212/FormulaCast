@@ -194,6 +194,57 @@ def export_current_season_historical():
     print(f"Exported {len(new_entries)} new round(s) and updated races.json.")
 
 
+def export_live_state() -> dict:
+    """Build and upload the model state needed for fast per-visit live predictions.
+
+    Trains the RF on all completed history, bundles it with upcoming race feature
+    rows and track calibration, then pushes to Supabase as a joblib blob.
+    The /api/predict/live endpoint downloads this on its first (cold) request
+    and caches it in memory; warm invocations skip straight to a fresh MC run.
+    """
+    print("Loading historical data and features...")
+    df = run_pipeline()
+    features = run_features(df)
+    raw_df = pd.read_csv(DATA_OUTPUT_PATH)
+    track_calibration = calibrate_track_events(raw_df)
+
+    print("Training model on all completed history...")
+    model = train_model_on_all_history(features)
+
+    print("Preparing upcoming race feature rows...")
+    future_path = ensure_future_file()
+    future = load_future_races(future_path)
+    races = list_future_races(future).reset_index(drop=True)
+
+    race_rows: dict = {}
+    race_index: list = []
+    for _, race in races.iterrows():
+        year = int(race["Year"])
+        round_no = int(race["RoundNumber"])
+        name = str(race["CircuitName"])
+        rows = get_race_rows(future, year, round_no)
+        key = f"{year}_round_{round_no}"
+        race_rows[key] = rows
+        race_index.append({
+            "year": year,
+            "round": round_no,
+            "name": name,
+            "race_date": rows["RaceDateUtc"].iloc[0] if "RaceDateUtc" in rows.columns else None,
+            "qualifying_date": rows["QualifyingDateUtc"].iloc[0] if "QualifyingDateUtc" in rows.columns else None,
+        })
+
+    state = {
+        "model": model,
+        "track_calibration": track_calibration,
+        "race_rows": race_rows,
+        "race_index": race_index,
+    }
+
+    from backend.cloud_storage import push_live_state
+    push_live_state(state)
+    return state
+
+
 def train_model_on_all_history(features: pd.DataFrame):
     train = features.dropna(subset=["FinishPosition", "GridPosition"]).copy()
     train["Residual"] = train["FinishPosition"] - train["GridPosition"]
