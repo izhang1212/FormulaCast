@@ -793,5 +793,10 @@
     "year": 2026,
     "round": 7,
     "name": "Barcelona Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 8,
+    "name": "Austrian Grand Prix"
   }
 ]
