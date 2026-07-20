@@ -1,18 +1,18 @@
 [
   {
     "year": 2026,
-    "round": 10,
-    "name": "Belgian Grand Prix",
-    "mode": "sampled",
-    "race_date": "2026-07-19 13:00:00",
-    "qualifying_date": "2026-07-18 14:00:00"
-  },
-  {
-    "year": 2026,
     "round": 11,
     "name": "Hungarian Grand Prix",
     "mode": "sampled",
     "race_date": "2026-07-26 13:00:00",
     "qualifying_date": "2026-07-25 14:00:00"
+  },
+  {
+    "year": 2026,
+    "round": 12,
+    "name": "Dutch Grand Prix",
+    "mode": "sampled",
+    "race_date": "2026-08-23 13:00:00",
+    "qualifying_date": "2026-08-22 14:00:00"
   }
 ]
