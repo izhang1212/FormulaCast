@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { NAME, teamColor } from "../config";
+import { NAME, predictedPosition, predictedRanks, teamColor } from "../config";
 import CircuitSVG from "./CircuitSVG";
 
 export default function PredictionBoard({ race, limit }) {
@@ -10,13 +10,7 @@ export default function PredictionBoard({ race, limit }) {
     return () => cancelAnimationFrame(id);
   }, [race]);
 
-  const ranked = race.drivers
-    .map((driver, index) => ({ driver, index }))
-    .sort((a, b) => a.driver.expected_position - b.driver.expected_position || a.index - b.index)
-    .reduce((ranks, entry, rankIndex) => {
-      ranks[entry.driver.driver] = rankIndex + 1;
-      return ranks;
-    }, {});
+  const ranked = predictedRanks(race.drivers);
   const rows = limit ? race.drivers.slice(0, limit) : race.drivers;
   const max = Math.max(...rows.map(r => r.win_pct), 1);
   const fav = rows[0];
@@ -40,7 +34,7 @@ export default function PredictionBoard({ race, limit }) {
         </span>
       </div>
       <div className="cols pred">
-        <span>P</span><span>Driver</span><span>P Rank</span><span>Win prob</span><span>Podium</span><span>E[pos]</span><span>xPts</span>
+        <span>P</span><span>Driver</span><span>P Rank</span><span>Win prob</span><span>Podium</span><span>Pred</span><span>xPts</span>
       </div>
       {rows.map((d, i) => (
         <div className={`row pred ${ranked[d.driver] === 1 ? "lead" : ""}`} key={d.driver}>
@@ -56,12 +50,12 @@ export default function PredictionBoard({ race, limit }) {
             <span className="val">{pct(d.win_pct)}</span>
           </div>
           <div className="podium">{pct(d.podium_pct)}</div>
-          <div className="epos">{num(d.expected_position)}</div>
+          <div className="epos" title={`Expected ${num(d.expected_position)}`}>P{predictedPosition(d)}</div>
           <div className="xpts">{num(d.expected_points)}</div>
         </div>
       ))}
       <div className="bfoot">
-        <div className="stat"><span className="k">Sims</span><span className="v">10,000</span></div>
+        <div className="stat"><span className="k">Sims</span><span className="v">20,000</span></div>
         <div className="stat"><span className="k">Win favourite</span><span className="v">{fav.driver} <small>{pct(fav.win_pct)}</small></span></div>
         <div className="stat"><span className="k">Podium favourite</span><span className="v">{podiumFav.driver} <small>{pct(podiumFav.podium_pct)}</small></span></div>
         <div className="stat"><span className="k">Expected points</span><span className="v">{pointsLeader.driver} <small>{num(pointsLeader.expected_points)}</small></span></div>

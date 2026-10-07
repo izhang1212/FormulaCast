@@ -1,17 +1,11 @@
-import { NAME, teamColor } from "../config";
+import { NAME, predictedPosition, predictedRanks, teamColor } from "../config";
 import CircuitSVG from "./CircuitSVG";
 
 export default function AccuracyBoard({ race, limit }) {
-  const ranked = race.drivers
-    .map((driver, index) => ({ driver, index }))
-    .sort((a, b) => a.driver.expected_position - b.driver.expected_position || a.index - b.index)
-    .reduce((ranks, entry, rankIndex) => {
-      ranks[entry.driver.driver] = rankIndex + 1;
-      return ranks;
-    }, {});
+  const ranked = predictedRanks(race.drivers);
   const rows = limit ? race.drivers.slice(0, limit) : race.drivers;
   const finished = race.drivers.filter(d => d.actual != null);
-  const errs = finished.map(d => Math.abs(d.expected_position - d.actual));
+  const errs = finished.map(d => Math.abs(predictedPosition(d) - d.actual));
   const mae = errs.length ? errs.reduce((a, b) => a + b, 0) / errs.length : 0;
   const w3 = errs.length ? Math.round(errs.filter(e => e <= 3).length / errs.length * 100) : 0;
   const topTenActuals = finished.filter(d => d.actual <= 10);
@@ -35,7 +29,7 @@ export default function AccuracyBoard({ race, limit }) {
       <div className="cols acc"><span>#</span><span>Driver</span><span>P Rank</span><span>Pred</span><span>Actual</span><span>Err</span></div>
       {rows.map((d, i) => {
         const dnf = d.actual == null;
-        const e = dnf ? null : Math.abs(d.expected_position - d.actual);
+        const e = dnf ? null : Math.abs(predictedPosition(d) - d.actual);
         const cls = dnf ? "bad" : e <= 1.5 ? "good" : e <= 3.5 ? "mid" : "bad";
         return (
           <div className="row acc" key={d.driver}>
@@ -46,9 +40,9 @@ export default function AccuracyBoard({ race, limit }) {
               <span className="full">{NAME[d.driver] || ""}</span>
             </div>
             <div className="rank">{ranked[d.driver]}</div>
-            <div className="epos">{d.expected_position.toFixed(1)}</div>
+            <div className="epos" title={`Expected ${d.expected_position.toFixed(1)}`}>P{predictedPosition(d)}</div>
             <div className="act">{dnf ? "DNF" : "P" + d.actual}</div>
-            <div className={`err ${cls}`}>{dnf ? "DNF" : e.toFixed(1)}</div>
+            <div className={`err ${cls}`}>{dnf ? "DNF" : Number.isInteger(e) ? e : e.toFixed(1)}</div>
           </div>
         );
       })}

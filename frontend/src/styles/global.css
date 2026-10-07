@@ -1398,6 +1398,11 @@ nav {
   margin-bottom: 18px;
 }
 
+/* A lone card on the last row spans it instead of leaving empty columns */
+.perf-grid .perf-card:last-child:nth-child(3n+1) {
+  grid-column: 1 / -1;
+}
+
 .perf-card {
   background: linear-gradient(160deg,var(--panel),var(--panel-2));
   border: 1px solid var(--line);
@@ -1691,6 +1696,14 @@ nav {
 
   .perf-grid {
     grid-template-columns: repeat(2,1fr);
+  }
+
+  .perf-grid .perf-card:last-child:nth-child(3n+1) {
+    grid-column: auto;
+  }
+
+  .perf-grid .perf-card:last-child:nth-child(2n+1) {
+    grid-column: 1 / -1;
   }
 }
 

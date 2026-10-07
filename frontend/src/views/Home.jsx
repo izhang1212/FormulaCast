@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRaceIndex } from "../hooks/useRaces";
 import { getRace } from "../api";
 import { NAME, teamColor, withMeta } from "../config";
@@ -109,24 +109,21 @@ function Carousel() {
     const scrollDistance = races.length * slideStep;
     const scrollDuration = Math.max(races.length * SECONDS_PER_CARD, 18);
 
+    // Fetch each race once. Depending on raceCache here would re-run the effect after
+    // every response, discard the in-flight requests and refetch them all (O(n²)).
+    // Responses are cached by year+round, so late ones (after a season switch) are still useful.
+    const requested = useRef(new Set());
     useEffect(() => {
-        if (!races.length) return;
-        let active = true;
-        const missing = races.filter(summary => !raceCache[cacheKey(summary)]);
-
-        missing.forEach(summary => {
-            const key = cacheKey(summary);
-            getRace(summary.year, summary.round)
-                .then(data => {
-                    if (active) setRaceCache(cache => ({ ...cache, [key]: withMeta(data) }));
-                })
-                .catch(() => { });
-        });
-
-        return () => {
-            active = false;
-        };
-    }, [races, raceCache]);
+        races
+            .filter(summary => !requested.current.has(cacheKey(summary)))
+            .forEach(summary => {
+                const key = cacheKey(summary);
+                requested.current.add(key);
+                getRace(summary.year, summary.round)
+                    .then(data => setRaceCache(cache => ({ ...cache, [key]: withMeta(data) })))
+                    .catch(() => { requested.current.delete(key); });
+            });
+    }, [races]);
 
     if (!years.length) return null;
 

@@ -55,8 +55,10 @@ export function hasLiveBackend() {
 
 function readBootstrapPrediction(path) {
   if (!bootstrapPredictions) return undefined;
-  if (path === "/races.json") return bootstrapPredictions.racesIndex || [];
-  if (path === "/future/index.json") return bootstrapPredictions.futureIndex || [];
+  // Only answer what the cache actually holds: getLivePredictions() fills just the
+  // future races, so a missing races index must fall through to a real fetch.
+  if (path === "/races.json") return bootstrapPredictions.racesIndex;
+  if (path === "/future/index.json") return bootstrapPredictions.futureIndex;
   if (path === "/performance.json") return bootstrapPredictions.performance;
 
   const historical = path.match(/^\/(\d{4})\/round_(\d+)\.json$/);

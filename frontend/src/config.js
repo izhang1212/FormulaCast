@@ -137,11 +137,30 @@ export const STEPS = [
   {k:'02 · Transform',t:'Feature Engineering',d:'Raw results become signals the model can learn from: rolling and exponentially-weighted form, team strength, grid-to-finish history, circuit experience and qualifying gaps. Each is computed leakage-free, only using information available up to that point, never lookinginto the future.'},
   {k:'03 · Learn',t:'Random Forest',d:'A Random Forest learns how far each driver tends to move from their grid slot, predicting a residual: positions gained or lost. Added to the starting grid, that gives an expected finishing position. Trained on past seasons, tested walk-forward on the next.'},
   {k:'04 · Anchor',t:'The Grid',d:'A finish prediction needs a start. After qualifying, the real penalty-adjusted grid is used. Before qualifying, FormulaCast samples a plausible grid from current form, so an upcoming race can be forecast days ahead of the qualifying session.'},
-  {k:'05 · Simulate',t:'Monte Carlo',d:'The expected order is only the average case. The Monte Carlo engine runs the race ten thousand times, injecting stochastic events (safety cars, first-lap incidents, mechanical DNFs, pit-stop variance, lap-by-lap overtaking) with event rates calibrated per circuit.'},
-  {k:'06 · Aggregate',t:'Probabilities',d:'Across ten thousand simulated races, the spread of where each driver lands becomes the output: win probability, podium and points odds, expected position, and the full finishing distribution.'},
+  {k:'05 · Simulate',t:'Monte Carlo',d:'The expected order is only the average case. The Monte Carlo engine runs the race twenty thousand times from the real grid, lap by lap: overtakes driven by pace gaps and how hard each circuit is to pass on, safety cars and restarts, first-lap chaos, mid-race incidents and DNFs, with event rates calibrated per circuit.'},
+  {k:'06 · Aggregate',t:'Probabilities',d:'Across twenty thousand simulated races, the spread of where each driver lands becomes the output: win probability, podium and points odds, a predicted (median) finishing position, and the full finishing distribution.'},
 ];
 
 // driver -> team color for a given season
+// Headline predicted finish: the simulated median (minimises position error); older
+// prediction files without it fall back to the mean.
+export function predictedPosition(driver) {
+  return driver.median_position ?? driver.expected_position;
+}
+
+// Rank drivers by predicted finish, ties broken by expected position.
+export function predictedRanks(drivers) {
+  return drivers
+    .map((driver, index) => ({ driver, index }))
+    .sort((a, b) => predictedPosition(a.driver) - predictedPosition(b.driver)
+      || a.driver.expected_position - b.driver.expected_position
+      || a.index - b.index)
+    .reduce((ranks, entry, rankIndex) => {
+      ranks[entry.driver.driver] = rankIndex + 1;
+      return ranks;
+    }, {});
+}
+
 export function teamColor(year, driver) {
   const roster = ROSTERS[year];
   const found = roster && roster.find(([ab]) => ab === driver);
