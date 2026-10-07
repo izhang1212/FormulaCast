@@ -96,6 +96,13 @@ jobs:
 
       # ── Predictions: rebuild and sync to frontend ───────────────────────────
 
+      # Must run before export_performance, which scores the historical round JSONs.
+      - name: Seed historical round JSONs into data dir
+        run: |
+          mkdir -p "$FORMULACAST_DATA_ROOT/predictions"
+          cp -rn frontend/public/predictions/. "$FORMULACAST_DATA_ROOT/predictions/"
+          echo "Seeded $(find "$FORMULACAST_DATA_ROOT/predictions" -name 'round_*.json' | wc -l) historical round JSON(s)."
+
       - name: Rebuild prediction JSONs
         run: |
           python - <<'EOF'
@@ -118,12 +125,6 @@ jobs:
               traceback.print_exc()
               sys.exit(0)
           EOF
-
-      - name: Seed historical round JSONs into data dir
-        run: |
-          mkdir -p "$FORMULACAST_DATA_ROOT/predictions"
-          cp -rn frontend/public/predictions/. "$FORMULACAST_DATA_ROOT/predictions/"
-          echo "Seeded $(find "$FORMULACAST_DATA_ROOT/predictions" -name 'round_*.json' | wc -l) historical round JSON(s)."
 
       - name: Export new completed rounds to Replay
         run: |
