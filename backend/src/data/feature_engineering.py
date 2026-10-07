@@ -3,6 +3,23 @@
 import pandas as pd
 import numpy as np
 
+# Classified finishers. FastF1 reports lapped cars as "+1 Lap", "+2 Laps", ... up to 2022
+# and as "Lapped" from 2023 on; everything else (Retired, Collision, DNS, DSQ...) is a DNF.
+def is_dnf_status(status: pd.Series) -> pd.Series:
+    s = status.astype(str).str.strip()
+    finished = s.isin(["Finished", "Lapped"]) | s.str.match(r"^\+\d+ Laps?$")
+    return ~finished
+
+# Recompute DNF from Status so season CSVs saved with the old (pre-"Lapped") rule are fixed on load.
+    # Rows without a Status (upcoming races) keep whatever DNF they already have.
+def normalize_dnf(df: pd.DataFrame) -> pd.DataFrame:
+    if "Status" not in df.columns:
+        return df
+    df = df.copy()
+    has_status = df["Status"].notna()
+    df.loc[has_status, "DNF"] = is_dnf_status(df.loc[has_status, "Status"])
+    return df
+
 def add_driver_rolling_features(df: pd.DataFrame) -> pd.DataFrame:
     # add rolling performance stats per driver
 
@@ -207,6 +224,8 @@ def add_quali_pace_features(df: pd.DataFrame) -> pd.DataFrame:
 # Apply all feature engineering steps
     # Returns: DataFrame with all new columns added
 def build_feature_matrix(df: pd.DataFrame) -> pd.DataFrame:
+    df = normalize_dnf(df)
+
     df = add_driver_rolling_features(df)
 
     df = add_weighted_features(df)

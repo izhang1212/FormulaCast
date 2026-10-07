@@ -4,6 +4,7 @@ import fastf1
 import pandas as pd 
 from tqdm import tqdm 
 from backend.config import BASE_DIR, SEASONS, CACHE_DIR
+from backend.src.data.feature_engineering import is_dnf_status
 import os
 
 fastf1.Cache.enable_cache(CACHE_DIR)
@@ -86,7 +87,7 @@ def extract_race_data(session, quali=None) -> pd.DataFrame:
     race_df["CircuitName"] = session.event["EventName"]
     race_df["TotalRaceLaps"] = session.total_laps
 
-    race_df["DNF"] = ~race_df["Status"].isin(["Finished", "+1 Lap", "+2 Laps", "+3 Laps"])
+    race_df["DNF"] = is_dnf_status(race_df["Status"])
 
     return race_df
 

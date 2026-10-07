@@ -7,7 +7,7 @@ from backend.src.data.feature_engineering import build_feature_matrix
 from backend.src.future.future_races import build_future_race_frame, save_future_races
 from backend.src.future.prepare_future import prepare_future_for_prediction
 from backend.src.models.random_forest import train_model, get_feature_importance
-from backend.src.models.monte_carlo import run_simulation
+from backend.src.models.monte_carlo import run_simulation, sort_by_prediction
 from backend.src.models.test import backtest_race
 from backend.src.future.predict_future import (
     load_future_races, list_future_races, get_race_rows, predict_future_race,
@@ -189,7 +189,7 @@ def print_mc_results(results):
     print("-" * 56)
     for _, r in summary.iterrows():
         print(f"{int(r['PredictedRank']):>3} {r['Driver']:<4} "
-              f"{r['ExpectedPosition']:>4.0f} "
+              f"{r['MedianPosition']:>4d} "
               f"{r['WinProb']:>4.0f}% {r['PodiumProb']:>4.0f}% "
               f"{r['PointsProb']:>4.0f}% {r['ExpectedPoints']:>5.1f}")
 
@@ -210,7 +210,8 @@ def print_feature_importance(importance):
 
 def print_accuracy(comparison, circuit):
     comparison = comparison.copy()
-    comparison["PredictedRank"] = comparison["ExpectedPosition"].rank(method="first").astype(int)
+    comparison = sort_by_prediction(comparison)
+    comparison["PredictedRank"] = range(1, len(comparison) + 1)
 
     print(f"\n{'='*70}")
     print(f"  ACCURACY CHECK — {circuit}")
@@ -218,7 +219,7 @@ def print_accuracy(comparison, circuit):
     print(f"\n{'Driver':<8} {'Rank':>5} {'Predicted':>10} {'Actual':>8} {'Error':>7}")
     print("-" * 45)
     for _, row in comparison.iterrows():
-        print(f"{row['Driver']:<8} P{int(row['PredictedRank']):<4} {row['ExpectedPosition']:>10.1f} "
+        print(f"{row['Driver']:<8} P{int(row['PredictedRank']):<4} {int(row['MedianPosition']):>10d} "
               f"{int(row['FinishPosition']):>8} {row['Error']:>7.1f}")
 
     top_10 = comparison.nsmallest(10, "FinishPosition")
@@ -266,10 +267,10 @@ def run_full_backtest(test_df, track_calibration):
         results = run_simulation(race_data, total_laps, n_sims=3000, track_params=track_params)
         summary = results["summary"]
 
-        comparison = summary[["Driver", "ExpectedPosition"]].merge(
+        comparison = summary[["Driver", "MedianPosition", "ExpectedPosition"]].merge(
             race_data[["Driver", "FinishPosition"]], on="Driver"
         )
-        comparison["Error"] = abs(comparison["ExpectedPosition"] - comparison["FinishPosition"])
+        comparison["Error"] = abs(comparison["MedianPosition"] - comparison["FinishPosition"])
         comparison["Circuit"] = circuit
         comparison["Round"] = rnd
         all_comparisons.append(comparison)
@@ -330,11 +331,10 @@ if __name__ == "__main__":
         print_mc_results(results)
 
         print("\n[Phase 6] Accuracy check...")
-        comparison = results["summary"][["Driver", "ExpectedPosition", "WinProb", "PodiumProb"]].copy()
+        comparison = results["summary"][["Driver", "MedianPosition", "ExpectedPosition", "WinProb", "PodiumProb"]].copy()
         actuals = race_data[["Driver", "FinishPosition"]].copy()
         comparison = comparison.merge(actuals, on="Driver")
-        comparison["Error"] = abs(comparison["ExpectedPosition"] - comparison["FinishPosition"])
-        comparison = comparison.sort_values("ExpectedPosition")
+        comparison["Error"] = abs(comparison["MedianPosition"] - comparison["FinishPosition"])
         print_accuracy(comparison, circuit)
 
         run_full = input("\nRun full season backtest? (y/n): ").strip().lower()

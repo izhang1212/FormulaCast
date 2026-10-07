@@ -16,10 +16,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-from backend.config import DATA_ROOT, RF_PARAMS
+from backend.config import DATA_ROOT
 from backend.main import (
     BASE_DIR,
     DATA_OUTPUT_PATH,
@@ -35,6 +34,7 @@ from backend.src.future.predict_future import (
     load_future_races,
     predict_future_race,
 )
+from backend.src.models.random_forest import fit_residual_model
 from backend.src.models.monte_carlo import COLUMN_MAP, export_index, export_race, run_simulation
 from backend.src.models.track_calibration import calibrate_track_events, get_track_params
 
@@ -246,12 +246,7 @@ def export_live_state() -> dict:
 
 
 def train_model_on_all_history(features: pd.DataFrame):
-    train = features.dropna(subset=["FinishPosition", "GridPosition"]).copy()
-    train["Residual"] = train["FinishPosition"] - train["GridPosition"]
-
-    model = RandomForestRegressor(**RF_PARAMS)
-    model.fit(train[FEATURE_COLUMNS].fillna(0), train["Residual"])
-    return model
+    return fit_residual_model(features)
 
 
 def export_future_race(results: dict, year: int, round_no: int, name: str, race_rows: pd.DataFrame):
@@ -355,6 +350,7 @@ def _metric_cards(metrics: dict) -> list[dict]:
     specs = [
         ("MAE", "Mean Abs Error", "pos", "Average finishing-position miss across all walk-forward holdout seasons."),
         ("RMSE", "RMSE", "pos", "Penalizes larger misses more heavily than MAE across all holdout seasons."),
+        ("Top_10_MAE", "Top 10 MAE", "pos", "Average finishing-position miss for drivers who actually finished in the top ten."),
         ("Within_3_Positions", "Within 3", "%", "Share of all holdout predictions within three finishing positions."),
         ("Podium_Accuracy", "Podium Hit Rate", "%", "Average overlap between predicted and real podium drivers."),
         ("Baseline_MAE (Grid Order)", "Grid Baseline", "pos", "Error if each race simply followed qualifying order."),
@@ -423,8 +419,10 @@ def _walk_forward_performance(features: pd.DataFrame) -> tuple[dict, pd.DataFram
 
     baseline_mae = mean_absolute_error(y_true, combined["GridPosition"])
     mae = mean_absolute_error(y_true, y_pred)
+    top_10 = y_true <= 10
     metrics = {
         "MAE": round(float(mae), 2),
+        "Top_10_MAE": round(float(mean_absolute_error(y_true[top_10], y_pred[top_10])), 2),
         "RMSE": round(float(np.sqrt(mean_squared_error(y_true, y_pred))), 2),
         "Within_3_Positions": round(float(np.mean(np.abs(y_true - y_pred) <= 3) * 100), 1),
         "Podium_Accuracy": round(float((podium_correct / total_podium_slots) * 100), 1)
@@ -443,6 +441,12 @@ def _walk_forward_performance(features: pd.DataFrame) -> tuple[dict, pd.DataFram
     )
 
     return metrics, importance, holdout_seasons
+
+
+def _predicted_position(driver: dict) -> float:
+    """Headline point prediction: the simulated median finish (older JSONs: the mean)."""
+    value = driver.get("median_position")
+    return float(value if value is not None else driver["expected_position"])
 
 
 def _prediction_accuracy() -> dict:
@@ -476,12 +480,9 @@ def _prediction_accuracy() -> dict:
             if not drivers:
                 continue
 
-            errors = [
-                abs(float(driver["expected_position"]) - float(driver["actual"]))
-                for driver in drivers
-            ]
+            errors = [abs(_predicted_position(driver) - float(driver["actual"])) for driver in drivers]
             race_top_10 = [
-                abs(float(driver["expected_position"]) - float(driver["actual"]))
+                abs(_predicted_position(driver) - float(driver["actual"]))
                 for driver in drivers
                 if float(driver["actual"]) <= 10
             ]

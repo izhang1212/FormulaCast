@@ -21,11 +21,13 @@ FormulaCast is deployed as a split app:
 
 ## Prediction Strategies Implemented:
 - **Random Forest Regression:**  Walk-forward validated model predicting finishing positions from 20+ engineered features, with exponentially weighted rolling averages to capture recent form
-- **Monte Carlo Simulation** — 10,000 race iterations with stochastic event modeling:
-  - Safety car probability per lap (with first-lap multiplier and cooldown)
-  - Mechanical DNF rates per constructor
-  - Pit stop time variance and botched stop probability
-  - Lap-by-lap overtake attempts based on pace differentials
+- **Monte Carlo Simulation** — 20,000 lap-by-lap races per Grand Prix, starting from the real grid:
+  - Each driver's race pace is the Random Forest's predicted position plus race-day noise (tighter for front-runners)
+  - Lap-by-lap overtakes between adjacent cars, more likely the bigger the pace gap, scaled by each circuit's historical overtaking
+  - Safety car periods (first-lap multiplier, no passing under SC, shuffled restarts) and a chaotic lap-1 start
+  - DNF probability blended from track, driver and team history; retirements classified by laps completed
+  - Mid-race incidents (spins, slow stops, penalties) that cost a few places
+  - Parameters tuned on walk-forward backtests (2019–2023) and checked on 2024–2026
 
 ### Backend Example Output:
 ```

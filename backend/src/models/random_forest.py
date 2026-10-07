@@ -7,6 +7,17 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from backend.config import RF_PARAMS
 from backend.src.data.feature_engineering import FEATURE_COLUMNS, TARGET_COLUMN
 
+# Fit the residual model (FinishPosition - GridPosition) on classified finishers only.
+    # Retirements are the Monte Carlo's job (per-driver DNF rates); training on them too
+    # would drag every PredictedPosition toward the back and count DNF risk twice.
+def fit_residual_model(train: pd.DataFrame) -> RandomForestRegressor:
+    train = train.dropna(subset=["FinishPosition", "GridPosition"])
+    train = train[train["DNF"].astype(str) != "True"]
+    model = RandomForestRegressor(**RF_PARAMS)
+    # Model looks at all training rows and builds n decision trees
+    model.fit(train[FEATURE_COLUMNS].fillna(0), train["FinishPosition"] - train["GridPosition"])
+    return model
+
 # Takes full feature matrix and a year to hold out for testing
     # Returns: Trarined model, test set with predictions, metrics dict
 def train_model(df: pd.DataFrame, test_season: int) -> tuple:
@@ -20,19 +31,11 @@ def train_model(df: pd.DataFrame, test_season: int) -> tuple:
     print(f"Train: {len(train)} rows ({train['Year'].min()}-{train['Year'].max()})")
     print(f"Test:  {len(test)} rows ({test_season})")
 
-    # Predict resisual position (how many positions driver gains/loses)
-    train["Residual"] = train["FinishPosition"] - train["GridPosition"]
-    test["Residual"] = test["FinishPosition"] - test["GridPosition"]
-
     # Replaces missing values in predictive features with 0's (since model only accpets numbers)
-    X_train = train[FEATURE_COLUMNS].fillna(0)
-    y_train = train["Residual"]
     X_test = test[FEATURE_COLUMNS].fillna(0)
 
-    # Create RF model with the params we defined
-    model = RandomForestRegressor(**RF_PARAMS)
-    # Model looks at all training rows and builds n decision trees
-    model.fit(X_train, y_train)
+    # Predicts residual position (how many positions driver gains/loses)
+    model = fit_residual_model(train)
 
     # Average out predictions
     predicted_residual = model.predict(X_test)

@@ -18,14 +18,14 @@ import fastf1
 
 from backend.config import CACHE_DIR, NUM_SIMULATIONS, POINTS_SYSTEM
 from backend.src.data.feature_engineering import FEATURE_COLUMNS
-from backend.src.models.monte_carlo import run_simulation
+from backend.src.models.monte_carlo import median_position, run_simulation, sort_by_prediction
 from backend.src.models.track_calibration import get_track_params
 
 fastf1.Cache.enable_cache(CACHE_DIR)
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 FUTURE_PATH = os.path.join(BASE_DIR, "data", "processed", "future_races.csv")
-DEFAULT_TOTAL_LAPS = 57   # future sessions have no lap count yet; refine per-circuit later
+DEFAULT_TOTAL_LAPS = 57   # fallback when the circuit has no calibrated lap count
 
 # Reliability features the Monte Carlo uses for per-driver DNF rates. Passed through
 # to run_simulation when present; the MC falls back to the flat track rate if absent.
@@ -93,9 +93,10 @@ def _predict_with_grid(model, race_rows: pd.DataFrame) -> pd.DataFrame:
 
 
 def _sim_frame(graded: pd.DataFrame) -> pd.DataFrame:
-    """Columns handed to run_simulation: driver + predicted position, plus the
-    reliability features when available so the MC can compute per-driver DNF rates."""
-    cols = ["Driver", "PredictedPosition"] + [c for c in DNF_COLS if c in graded.columns]
+    """Columns handed to run_simulation: driver + predicted position + grid slot (the MC
+    starts the race from the grid), plus the reliability features when available so the
+    MC can compute per-driver DNF rates."""
+    cols = ["Driver", "PredictedPosition", "GridPosition"] + [c for c in DNF_COLS if c in graded.columns]
     return graded[cols]
 
 
@@ -108,18 +109,19 @@ def _summary_from_probs(drivers: list, position_probs: np.ndarray) -> pd.DataFra
         rows.append({
             "Driver": d,
             "ExpectedPosition": round(float((pos_range * p).sum()), 1),
+            "MedianPosition": median_position(p),
             "WinProb": round(float(p[1]) * 100, 1),
             "PodiumProb": round(float(p[1:4].sum()) * 100, 1),
             "PointsProb": round(float(p[1:11].sum()) * 100, 1),
             "ExpectedPoints": round(float(sum(POINTS_SYSTEM.get(k, 0) * p[k]
                                               for k in range(1, n + 1))), 2),
         })
-    return pd.DataFrame(rows).sort_values("ExpectedPosition")
+    return sort_by_prediction(pd.DataFrame(rows))
 
 
 def predict_future_race(model, race_rows: pd.DataFrame, track_calibration,
                         n_sims: int = NUM_SIMULATIONS, seed: "int | None" = 0,
-                        total_laps: int = DEFAULT_TOTAL_LAPS) -> dict:
+                        total_laps: "int | None" = None) -> dict:
     """Predict one upcoming race. Returns dict with keys:
     summary, position_probs, mode, circuit, total_laps. No printing.
 
@@ -129,6 +131,8 @@ def predict_future_race(model, race_rows: pd.DataFrame, track_calibration,
     mode = detect_grid_mode(race_rows)
     circuit = race_rows["CircuitName"].iloc[0]
     track_params = get_track_params(track_calibration, circuit)
+    if total_laps is None:
+        total_laps = int(track_params.get("total_laps", DEFAULT_TOTAL_LAPS))
 
     if mode == "official":
         graded = _predict_with_grid(model, fill_official_grid(race_rows))
