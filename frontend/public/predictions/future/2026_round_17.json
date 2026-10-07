@@ -1,0 +1,209 @@
+{
+  "year": 2026,
+  "round": 17,
+  "name": "Singapore Grand Prix",
+  "laps": 61,
+  "mode": "sampled",
+  "race_date": "2026-10-11 12:00:00",
+  "qualifying_date": "2026-10-10 13:00:00",
+  "drivers": [
+    {
+      "driver": "ANT",
+      "expected_position": 5.3,
+      "median_position": 3,
+      "win_pct": 25.4,
+      "podium_pct": 57.5,
+      "points_pct": 86.5,
+      "expected_points": 14.31
+    },
+    {
+      "driver": "HAM",
+      "expected_position": 5.7,
+      "median_position": 4,
+      "win_pct": 16.8,
+      "podium_pct": 47.5,
+      "points_pct": 86.7,
+      "expected_points": 12.79
+    },
+    {
+      "driver": "VER",
+      "expected_position": 6.7,
+      "median_position": 4,
+      "win_pct": 11.6,
+      "podium_pct": 39.6,
+      "points_pct": 82.9,
+      "expected_points": 11.04
+    },
+    {
+      "driver": "RUS",
+      "expected_position": 6.6,
+      "median_position": 5,
+      "win_pct": 17.4,
+      "podium_pct": 41.2,
+      "points_pct": 82.5,
+      "expected_points": 11.46
+    },
+    {
+      "driver": "LEC",
+      "expected_position": 7.3,
+      "median_position": 5,
+      "win_pct": 9.5,
+      "podium_pct": 29.0,
+      "points_pct": 81.4,
+      "expected_points": 9.77
+    },
+    {
+      "driver": "NOR",
+      "expected_position": 7.2,
+      "median_position": 6,
+      "win_pct": 6.0,
+      "podium_pct": 24.7,
+      "points_pct": 83.7,
+      "expected_points": 8.77
+    },
+    {
+      "driver": "HAD",
+      "expected_position": 7.4,
+      "median_position": 6,
+      "win_pct": 5.0,
+      "podium_pct": 22.0,
+      "points_pct": 82.2,
+      "expected_points": 8.38
+    },
+    {
+      "driver": "LIN",
+      "expected_position": 8.0,
+      "median_position": 7,
+      "win_pct": 0.8,
+      "podium_pct": 7.5,
+      "points_pct": 82.1,
+      "expected_points": 5.83
+    },
+    {
+      "driver": "PIA",
+      "expected_position": 8.0,
+      "median_position": 7,
+      "win_pct": 4.2,
+      "podium_pct": 18.6,
+      "points_pct": 78.5,
+      "expected_points": 7.53
+    },
+    {
+      "driver": "LAW",
+      "expected_position": 8.9,
+      "median_position": 9,
+      "win_pct": 3.1,
+      "podium_pct": 11.2,
+      "points_pct": 69.4,
+      "expected_points": 5.07
+    },
+    {
+      "driver": "GAS",
+      "expected_position": 12.6,
+      "median_position": 12,
+      "win_pct": 0.0,
+      "podium_pct": 0.2,
+      "points_pct": 33.7,
+      "expected_points": 1.2
+    },
+    {
+      "driver": "HUL",
+      "expected_position": 13.0,
+      "median_position": 13,
+      "win_pct": 0.0,
+      "podium_pct": 0.2,
+      "points_pct": 30.7,
+      "expected_points": 1.12
+    },
+    {
+      "driver": "BOR",
+      "expected_position": 13.1,
+      "median_position": 13,
+      "win_pct": 0.0,
+      "podium_pct": 0.1,
+      "points_pct": 25.0,
+      "expected_points": 0.78
+    },
+    {
+      "driver": "OCO",
+      "expected_position": 13.2,
+      "median_position": 13,
+      "win_pct": 0.0,
+      "podium_pct": 0.1,
+      "points_pct": 28.3,
+      "expected_points": 0.93
+    },
+    {
+      "driver": "COL",
+      "expected_position": 13.8,
+      "median_position": 14,
+      "win_pct": 0.0,
+      "podium_pct": 0.2,
+      "points_pct": 21.5,
+      "expected_points": 0.73
+    },
+    {
+      "driver": "BEA",
+      "expected_position": 14.6,
+      "median_position": 14,
+      "win_pct": 0.0,
+      "podium_pct": 0.1,
+      "points_pct": 14.8,
+      "expected_points": 0.43
+    },
+    {
+      "driver": "ALO",
+      "expected_position": 16.0,
+      "median_position": 16,
+      "win_pct": 0.0,
+      "podium_pct": 0.1,
+      "points_pct": 12.7,
+      "expected_points": 0.47
+    },
+    {
+      "driver": "SAI",
+      "expected_position": 16.2,
+      "median_position": 16,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 5.5,
+      "expected_points": 0.13
+    },
+    {
+      "driver": "PER",
+      "expected_position": 16.8,
+      "median_position": 17,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 4.7,
+      "expected_points": 0.12
+    },
+    {
+      "driver": "STR",
+      "expected_position": 17.2,
+      "median_position": 17,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 3.4,
+      "expected_points": 0.08
+    },
+    {
+      "driver": "ALB",
+      "expected_position": 17.4,
+      "median_position": 18,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 2.3,
+      "expected_points": 0.05
+    },
+    {
+      "driver": "BOT",
+      "expected_position": 17.8,
+      "median_position": 18,
+      "win_pct": 0.0,
+      "podium_pct": 0.0,
+      "points_pct": 1.4,
+      "expected_points": 0.03
+    }
+  ]
+}

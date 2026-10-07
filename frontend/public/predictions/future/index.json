@@ -1,18 +1,18 @@
 [
   {
     "year": 2026,
-    "round": 12,
-    "name": "Dutch Grand Prix",
+    "round": 17,
+    "name": "Singapore Grand Prix",
     "mode": "sampled",
-    "race_date": "2026-08-23 13:00:00",
-    "qualifying_date": "2026-08-22 14:00:00"
+    "race_date": "2026-10-11 12:00:00",
+    "qualifying_date": "2026-10-10 13:00:00"
   },
   {
     "year": 2026,
-    "round": 13,
-    "name": "Italian Grand Prix",
+    "round": 18,
+    "name": "United States Grand Prix",
     "mode": "sampled",
-    "race_date": "2026-09-06 13:00:00",
-    "qualifying_date": "2026-09-05 14:00:00"
+    "race_date": "2026-10-25 20:00:00",
+    "qualifying_date": "2026-10-24 21:00:00"
   }
 ]

@@ -798,5 +798,45 @@
     "year": 2026,
     "round": 8,
     "name": "Austrian Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 9,
+    "name": "British Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 10,
+    "name": "Belgian Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 11,
+    "name": "Hungarian Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 12,
+    "name": "Dutch Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 13,
+    "name": "Italian Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 14,
+    "name": "Spanish Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 15,
+    "name": "Azerbaijan Grand Prix"
+  },
+  {
+    "year": 2026,
+    "round": 16,
+    "name": "Bahrain Grand Prix"
   }
 ]
